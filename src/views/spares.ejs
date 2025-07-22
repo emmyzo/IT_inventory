@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spares | Olam Agri IT Inventory</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: #f8fafc; min-height: 100vh; }
+    .sidebar { background: #fff; min-height: 100vh; box-shadow: 2px 0 8px rgba(0,0,0,0.04); padding: 2rem 1rem 1rem 1rem; position: fixed; left: 0; top: 0; width: 220px; z-index: 100; display: flex; flex-direction: column; gap: 2rem; }
+    .sidebar .logo { width: 50px; height: 30px; margin-bottom: 0.5rem; }
+    .sidebar .brand-title { font-size: 1.5rem; font-weight: 700; color: #222; margin-bottom: 0.2rem; letter-spacing: -1px; }
+    .sidebar .brand-sub { font-size: 1rem; font-weight: 700; color: #009688; margin-bottom: 1.2rem; }
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.2rem; }
+    .sidebar-nav li a { color: #222; text-decoration: none; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; gap: 0.7rem; padding: 0.4rem 0.7rem; border-radius: 6px; transition: background 0.2s, color 0.2s; }
+    .sidebar-nav li a.active, .sidebar-nav li a:hover { background: #009688; color: #fff; }
+    .main-content { margin-left: 220px; padding: 2rem 2rem 1rem 2rem; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; }
+    .topbar .user-info { display: flex; align-items: center; gap: 1rem; }
+    .topbar .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #009688; font-weight: 700; }
+    .table-section { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); padding: 1.5rem 1.2rem; margin-bottom: 2rem; }
+    .table-section .section-title { font-size: 1.2rem; font-weight: 700; color: #222; margin-bottom: 1rem; }
+    .table-responsive { max-width: 100vw; overflow-x: auto; }
+    th, td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <img src="/images/olam_logo.png" alt="Olam Agri Logo" class="logo">
+      <div class="brand-title" style="text-align: center;">Olam Agri</div>
+      <div class="brand-sub" style="text-align: center;">IT Inventory</div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/user/dashboard" class="<%= (activeTab === 'dashboard') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Active</a></li>
+      <li><a href="/user/spares" class="<%= (activeTab === 'spares') ? 'active' : '' %>"><i class="fa fa-archive"></i> Spares</a></li>
+      <li><a href="/user/deleted" class="<%= (activeTab === 'deleted') ? 'active' : '' %>"><i class="fa fa-trash"></i> Deleted Items</a></li>
+      <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main-content">
+    <div class="topbar">
+      <h2 class="mb-0">Spares</h2>
+      <div class="user-info">
+        <div class="user-avatar"><i class="fa fa-user"></i></div>
+        <span class="fw-bold"><%= user && user.username ? user.username : 'User' %></span>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="section-title mb-0">Spares Inventory Sheet</div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="userSparesInventoryTable">
+          <thead class="table-light">
+            <tr>
+              <th>S/N</th>
+              <th>IT SPOC</th>
+              <th>User type</th>
+              <th>Name of the user</th>
+              <th>User email ID</th>
+              <th>Device type</th>
+              <th>Device brand</th>
+              <th>Device model</th>
+              <th>Hostname</th>
+              <th>Serial number</th>
+              <th>Department</th>
+              <th>Location</th>
+              <th>PO</th>
+              <th>Purchase date</th>
+              <th>Invoice number</th>
+              <th>Warranty</th>
+              <th>HR</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userSparesInventoryTableBody">
+            <!-- Dynamic rows will be injected here by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function fetchSparesInventoryRows() {
+      const res = await fetch('/api/user-dashboard/inventory?status=spares', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const items = await res.json();
+      const tbody = document.getElementById('userSparesInventoryTableBody');
+      tbody.innerHTML = '';
+      items.forEach((item, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${item.itSpoc || ''}</td>
+          <td>${item.userType || ''}</td>
+          <td>${item.userName || ''}</td>
+          <td>${item.userEmail || ''}</td>
+          <td>${item.deviceType || ''}</td>
+          <td>${item.deviceBrand || ''}</td>
+          <td>${item.deviceModel || ''}</td>
+          <td>${item.hostname || ''}</td>
+          <td>${item.serialNumber || ''}</td>
+          <td>${item.department || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.po || ''}</td>
+          <td>${item.purchaseDate || ''}</td>
+          <td>${item.invoiceNumber || ''}</td>
+          <td>${item.warranty || ''}</td>
+          <td>${item.hr || ''}</td>
+          <td>${item.description || ''}</td>
+          <td><button class='btn btn-sm btn-success' onclick='restoreInventoryRow(${item.id})'><i class="fa fa-undo"></i> Restore</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    fetchSparesInventoryRows();
+    window.restoreInventoryRow = async function(id) {
+      if (!confirm('Are you sure you want to restore this item to active inventory?')) {
+        return;
+      }
+      try {
+        const res = await fetch(`/api/inventory/${id}/restore`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin'
+        });
+        if (res.ok) {
+          fetchSparesInventoryRows();
+          alert('Item restored successfully!');
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Failed to restore item');
+        }
+      } catch (err) {
+        alert('Network error');
+      }
+    };
+  </script>
+</body>
+</html> 

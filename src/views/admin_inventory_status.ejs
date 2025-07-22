@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-items',' Items') %> | Admin | Olam Agri IT Inventory</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: #f8fafc; min-height: 100vh; }
+    .sidebar { background: #fff; min-height: 100vh; box-shadow: 2px 0 8px rgba(0,0,0,0.04); padding: 2rem 1rem 1rem 1rem; position: fixed; left: 0; top: 0; width: 220px; z-index: 100; display: flex; flex-direction: column; gap: 2rem; }
+    .sidebar .logo { width: 50px; height: 30px; margin-bottom: 0.5rem; }
+    .sidebar .brand-title { font-size: 1.5rem; font-weight: 700; color: #222; margin-bottom: 0.2rem; letter-spacing: -1px; }
+    .sidebar .brand-sub { font-size: 1rem; font-weight: 700; color: #009688; margin-bottom: 1.2rem; }
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.2rem; }
+    .sidebar-nav li a { color: #222; text-decoration: none; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; gap: 0.7rem; padding: 0.4rem 0.7rem; border-radius: 6px; transition: background 0.2s, color 0.2s; }
+    .sidebar-nav li a.active, .sidebar-nav li a:hover { background: #009688; color: #fff; }
+    .main-content { margin-left: 220px; padding: 2rem 2rem 1rem 2rem; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; }
+    .topbar .user-info { display: flex; align-items: center; gap: 1rem; }
+    .topbar .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #009688; font-weight: 700; }
+    .table-section { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); padding: 1.5rem 1.2rem; margin-bottom: 2rem; }
+    .table-section .section-title { font-size: 1.2rem; font-weight: 700; color: #222; margin-bottom: 1rem; }
+    .table-responsive { max-width: 100vw; overflow-x: auto; }
+    th, td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; vertical-align: middle; }
+    .sortable:hover { cursor: pointer; text-decoration: underline; }
+    @media (max-width: 900px) { .main-content { margin-left: 0; padding: 1rem; } .sidebar { position: static; width: 100%; min-height: auto; flex-direction: row; gap: 1rem; padding: 1rem; } .table-section { padding: 1rem 0.5rem; } th, td { font-size: 0.92rem; } .sidebar { padding: 1rem 0.5rem; } }
+    @media (max-width: 600px) { .main-content { padding: 0.5rem; } .sidebar { flex-direction: column; align-items: flex-start; } .table-section { padding: 0.5rem 0.2rem; } th, td { font-size: 0.85rem; } .sidebar { padding: 1rem 0.5rem; } .topbar { flex-direction: column; align-items: flex-start; gap: 0.5rem; } .table-responsive { padding: 0; } }
+    @media (max-width: 400px) { .main-content { padding: 0.2rem; } .table-section { padding: 0.2rem 0.05rem; } th, td { font-size: 0.78rem; } }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <img src="/images/olam_logo.png" alt="Olam Agri Logo" class="logo">
+      <div class="brand-title" style="text-align: center;">Olam Agri</div>
+      <div class="brand-sub" style="text-align: center;">IT Inventory</div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin/dashboard" class="<%= (activeTab === 'dashboard') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Dashboard</a></li>
+      <li><a href="/admin/users" class="<%= (activeTab === 'users') ? 'active' : '' %>"><i class="fa fa-users"></i> Users</a></li>
+      <li><a href="/admin/active" class="<%= (activeTab === 'active') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Active</a></li>
+      <li><a href="/admin/spares" class="<%= (activeTab === 'spares') ? 'active' : '' %>"><i class="fa fa-archive"></i> Spares</a></li>
+      <li><a href="/admin/scrap" class="<%= (activeTab === 'scrap') ? 'active' : '' %>"><i class="fa fa-recycle"></i> Scrap</a></li>
+      <li><a href="/admin/deleted-items" class="<%= (activeTab === 'deleted-items') ? 'active' : '' %>"><i class="fa fa-trash"></i> Deleted Items</a></li>
+      <li><a href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main-content">
+    <div class="topbar">
+      <h2 class="mb-0"><%= activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-items',' Items') %></h2>
+      <div class="user-info">
+        <div class="user-avatar"><i class="fa fa-user"></i></div>
+        <span class="fw-bold"><%= user && user.username ? user.username : 'Admin' %></span>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-0"><%= activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-items',' Items') %> Inventory Sheet</div>
+        <div class="input-group input-group-sm" style="width: 300px;">
+          <input id="searchBar" class="form-control" type="text" placeholder="Search inventory...">
+          <button id="searchBtn" class="btn btn-outline-success" type="button"><i class="fa fa-search" style="color: green;"></i></button>
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="itSpocDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa fa-filter"></i> IT SPOC
+            </button>
+            <ul class="dropdown-menu" id="itSpocDropdownMenu" aria-labelledby="itSpocDropdownBtn">
+              <li><a class="dropdown-item" href="#" data-itspoc="__all__">Show All</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="adminInventoryStatusTable">
+          <thead class="table-light">
+            <tr>
+              <th>S/N</th>
+              <th>IT SPOC</th>
+              <th>User email ID</th>
+              <th>User type</th>
+              <th>Name of user</th>
+              <th>Email id</th>
+              <th>Device type</th>
+              <th>Device brand</th>
+              <th>Device model</th>
+              <th>Hostname</th>
+              <th>Windows</th>
+              <th>Windows type</th>
+              <th>SAP user</th>
+              <th>Microsoft Office</th>
+              <th>Serial number</th>
+              <th>System RAM</th>
+              <th>System ROM</th>
+              <th>Hard drive type</th>
+              <th>Department</th>
+              <th>Location</th>
+              <th>Zscaler</th>
+              <th>Trellix</th>
+              <th>SCCM</th>
+              <th>Ivanti</th>
+              <th>BitLocker</th>
+              <th>Secure login</th>
+              <th>Joined to Olam domain</th>
+              <th>PO</th>
+              <th>Invoice number</th>
+              <th>Purchase date</th>
+              <th>Warranty</th>
+              <th>HR</th>
+              <% if (activeTab === 'spares' || activeTab === 'scrap' || activeTab === 'deleted-items') { %><th>Description</th><% } %>
+            </tr>
+          </thead>
+          <tbody id="adminInventoryStatusTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const items = <%- JSON.stringify(items || []) %>;
+    const activeTab = '<%= activeTab %>';
+    let filteredItems = [...items];
+    let allItems = [...items];
+    let sortAsc = true;
+    async function fetchItSpocs() {
+      try {
+        const res = await fetch('/api/inventory/itspocs', { credentials: 'same-origin' });
+        const names = await res.json();
+        const menu = document.getElementById('itSpocDropdownMenu');
+        menu.innerHTML = '<li><a class="dropdown-item" href="#" data-itspoc="__all__">Show All</a></li>';
+        names.forEach(name => {
+          const li = document.createElement('li');
+          li.innerHTML = `<a class="dropdown-item" href="#" data-itspoc="${encodeURIComponent(name)}">${name}</a>`;
+          menu.appendChild(li);
+        });
+      } catch (err) {
+        alert('Failed to load IT SPOC names.');
+      }
+    }
+    async function fetchItemsByItSpoc(itSpoc) {
+      try {
+        if (itSpoc === '__all__') {
+          filteredItems = [...allItems];
+          renderTable();
+          return;
+        }
+        const res = await fetch(`/api/inventory/by-itspoc?itSpoc=${encodeURIComponent(itSpoc)}&status=${encodeURIComponent(activeTab)}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch items');
+        filteredItems = await res.json();
+        renderTable();
+      } catch (err) {
+        alert('Failed to filter by IT SPOC.');
+      }
+    }
+    function renderTable() {
+      const tbody = document.getElementById('adminInventoryStatusTableBody');
+      tbody.innerHTML = '';
+      filteredItems.forEach((item, i) => {
+        let row = `<tr>
+          <td>${i + 1}</td>
+          <td>${item.itSpoc || ''}</td>
+          <td>${item.userEmail || ''}</td>
+          <td>${item.userType || ''}</td>
+          <td>${item.userName || ''}</td>
+          <td>${item.emailId || ''}</td>
+          <td>${item.deviceType || ''}</td>
+          <td>${item.deviceBrand || ''}</td>
+          <td>${item.deviceModel || ''}</td>
+          <td>${item.hostname || ''}</td>
+          <td>${item.windows || ''}</td>
+          <td>${item.windowsType || ''}</td>
+          <td>${item.sapUser || ''}</td>
+          <td>${item.microsoftOffice || ''}</td>
+          <td>${item.serialNumber || ''}</td>
+          <td>${item.ram || ''}</td>
+          <td>${item.rom || ''}</td>
+          <td>${item.hardDriveType || ''}</td>
+          <td>${item.department || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.zscaler || ''}</td>
+          <td>${item.trellix || ''}</td>
+          <td>${item.sccm || ''}</td>
+          <td>${item.ivanti || ''}</td>
+          <td>${item.bitLocker || ''}</td>
+          <td>${item.secureLogin || ''}</td>
+          <td>${item.joinedToOlamDomain || ''}</td>
+          <td>${item.po || ''}</td>
+          <td>${item.invoiceNumber || ''}</td>
+          <td>${item.purchaseDate || ''}</td>
+          <td>${item.warranty || ''}</td>
+          <td>${item.hr || ''}</td>`;
+        if (activeTab === 'spares' || activeTab === 'scrap' || activeTab === 'deleted-items') {
+          row += `<td>${item.description || ''}</td>`;
+        }
+        row += `</tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+    function searchTable() {
+      const search = document.getElementById('searchBar').value.toLowerCase();
+      filteredItems = allItems.filter(item => Object.values(item).some(val => (val + '').toLowerCase().includes(search)));
+      renderTable();
+    }
+    document.getElementById('searchBar').addEventListener('input', searchTable);
+    document.getElementById('searchBtn').addEventListener('click', searchTable);
+    document.getElementById('itSpocDropdownMenu').addEventListener('click', function(e) {
+      if (e.target && e.target.matches('a[data-itspoc]')) {
+        const itSpoc = decodeURIComponent(e.target.getAttribute('data-itspoc'));
+        fetchItemsByItSpoc(itSpoc);
+      }
+    });
+    // Initial sort by user email id ascending
+    filteredItems.sort((a, b) => (a.userEmail || '').localeCompare(b.userEmail || ''));
+    renderTable();
+    fetchItSpocs();
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/logout';
+    }
+  </script>
+</body>
+</html> 

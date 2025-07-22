@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Sheets | Olam Agri IT Inventory</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: #f8fafc; min-height: 100vh; }
+    .sidebar { background: #fff; min-height: 100vh; box-shadow: 2px 0 8px rgba(0,0,0,0.04); padding: 2rem 1rem 1rem 1rem; position: fixed; left: 0; top: 0; width: 220px; z-index: 100; display: flex; flex-direction: column; gap: 2rem; }
+    .sidebar .logo { width: 50px; height: 30px; margin-bottom: 0.5rem; }
+    .sidebar .brand-title { font-size: 1.5rem; font-weight: 700; color: #222; margin-bottom: 0.2rem; letter-spacing: -1px; }
+    .sidebar .brand-sub { font-size: 1rem; font-weight: 700; color: #009688; margin-bottom: 1.2rem; }
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.2rem; }
+    .sidebar-nav li a { color: #222; text-decoration: none; font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; gap: 0.7rem; padding: 0.4rem 0.7rem; border-radius: 6px; transition: background 0.2s, color 0.2s; }
+    .sidebar-nav li a.active, .sidebar-nav li a:hover { background: #009688; color: #fff; }
+    .main-content { margin-left: 220px; padding: 2rem 2rem 1rem 2rem; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .topbar .user-info { display: flex; align-items: center; gap: 1rem; }
+    .topbar .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #009688; font-weight: 700; }
+    .table-section { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); padding: 1.5rem 1.2rem; margin-bottom: 2rem; }
+    .table-section .section-title { font-size: 1.2rem; font-weight: 700; color: #222; margin-bottom: 1rem; }
+    .btn-add { background: #009688; color: #fff; }
+    .btn-add:hover { background: #00796b; color: #fff; }
+    @media (max-width: 900px) { .main-content { margin-left: 0; padding: 1rem; } .sidebar { position: static; width: 100%; min-height: auto; flex-direction: row; gap: 1rem; padding: 1rem; } }
+    @media (max-width: 600px) { .main-content { padding: 0.5rem; } .sidebar { flex-direction: column; align-items: flex-start; } .table-section { padding: 1rem 0.5rem; } }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <img src="/images/olam_logo.png" alt="Olam Agri Logo" class="logo">
+      <div class="brand-title">Olam Agri</div>
+      <div class="brand-sub">IT Inventory</div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin/dashboard" class="<%= (activeTab === 'dashboard') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Dashboard</a></li>
+      <li><a href="/admin/users" class="<%= (activeTab === 'users') ? 'active' : '' %>"><i class="fa fa-users"></i> Users</a></li>
+      <li><a href="/admin/active" class="<%= (activeTab === 'active') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Active</a></li>
+      <li><a href="/admin/spares" class="<%= (activeTab === 'spares') ? 'active' : '' %>"><i class="fa fa-archive"></i> Spares</a></li>
+      <li><a href="/admin/scrap" class="<%= (activeTab === 'scrap') ? 'active' : '' %>"><i class="fa fa-recycle"></i> Scrap</a></li>
+      <li><a href="/admin/deleted-items" class="<%= (activeTab === 'deleted-items') ? 'active' : '' %>"><i class="fa fa-trash"></i> Deleted Items</a></li>
+      <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main-content">
+    <div class="topbar">
+      <h2 class="mb-0">Inventory Sheets</h2>
+      <div class="user-info">
+        <div class="user-avatar"><i class="fa fa-user"></i></div>
+        <span class="fw-bold"><%= user.username %></span>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-0">Sheets</div>
+        <div>
+          <% if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') { %>
+            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addSheetModal"><i class="fa fa-plus"></i> Add Sheet</button>
+          <% } %>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="sheetsTable">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Assigned Users</th>
+              <th>Allocated Sheet</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sheetsTableBody">
+            <!-- Dynamic rows will be injected here by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <!-- Add Sheet Modal -->
+  <div class="modal fade" id="addSheetModal" tabindex="-1" aria-labelledby="addSheetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addSheetForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addSheetModalLabel">Add Inventory Sheet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Sheet Name</label><input type="text" class="form-control" name="name" required></div>
+            <% if (user.role === 'SUPER_ADMIN') { %>
+            <div class="mb-3"><label class="form-label">Allocated Sheet</label><input type="text" class="form-control" name="assignedUserId" placeholder="Sheet ID (demo)"></div>
+            <% } %>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-add">Add Sheet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Sheet Modal -->
+  <div class="modal fade" id="editSheetModal" tabindex="-1" aria-labelledby="editSheetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editSheetForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editSheetModalLabel">Edit Sheet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="id" id="editSheetId">
+            <div class="mb-3"><label class="form-label">Sheet Name</label><input type="text" class="form-control" name="name" id="editSheetName" required></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Delete Sheet Modal -->
+  <div class="modal fade" id="deleteSheetModal" tabindex="-1" aria-labelledby="deleteSheetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteSheetModalLabel">Delete Sheet</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="deleteSheetModalBody">
+          Are you sure you want to delete this sheet?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteSheetBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Add Users Modal -->
+  <div class="modal fade" id="addUsersModal" tabindex="-1" aria-labelledby="addUsersModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addUsersForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addUsersModalLabel">Add Users to Sheet</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="sheetId" id="addUsersSheetId">
+            <div class="mb-3"><label class="form-label">User IDs (comma separated, demo)</label><input type="text" class="form-control" name="userIds" id="addUsersUserIds" required></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Users</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Transfer User Modal -->
+  <div class="modal fade" id="transferUserModal" tabindex="-1" aria-labelledby="transferUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="transferUserForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="transferUserModalLabel">Transfer User</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="fromSheetId" id="transferFromSheetId">
+            <div class="mb-3"><label class="form-label">User ID</label><input type="text" class="form-control" name="userId" id="transferUserId" required></div>
+            <div class="mb-3"><label class="form-label">Target Sheet</label>
+              <select class="form-select" name="toSheetId" id="transferToSheetDropdown">
+                <option value="1">Sheet 1</option>
+                <option value="2">Sheet 2</option>
+                <option value="3">Sheet 3</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Transfer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Toast for feedback -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+    <div id="sheetsToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="sheetsToastBody">Action successful!</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function fetchSheets() {
+      const res = await fetch('/api/inventory/sheets-list');
+      if (!res.ok) return;
+      const sheets = await res.json();
+      const tbody = document.getElementById('sheetsTableBody');
+      tbody.innerHTML = '';
+      sheets.forEach((s, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${s.name}</td>
+          <td>${s.users ? s.users.join(', ') : ''}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditSheetModal(${s.id}, '${s.name}')"><i class='fa fa-edit'></i></button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="openAddUsersModal(${s.id}, '${s.name}')"><i class='fa fa-user-plus'></i></button>
+            <button class="btn btn-sm btn-outline-warning me-1" onclick="openTransferUserModal(${s.id}, '${s.name}')"><i class='fa fa-exchange-alt'></i></button>
+            <button class="btn btn-sm btn-outline-danger" onclick="openDeleteSheetModal(${s.id}, '${s.name}')"><i class="fa fa-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    fetchSheets();
+
+    function showToast(msg) {
+      document.getElementById('sheetsToastBody').textContent = msg;
+      const toast = new bootstrap.Toast(document.getElementById('sheetsToast'));
+      toast.show();
+    }
+
+    document.getElementById('addSheetForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      const res = await fetch('/api/inventory/sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      btn.disabled = false;
+      if (res.ok) {
+        form.reset();
+        bootstrap.Modal.getInstance(document.getElementById('addSheetModal')).hide();
+        showToast('Sheet added successfully!');
+        fetchSheets();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to add sheet');
+      }
+    };
+
+    let deleteSheetId = null;
+    function openDeleteSheetModal(id, name) {
+      deleteSheetId = id;
+      document.getElementById('deleteSheetModalBody').textContent = `Are you sure you want to delete sheet '${name}'?`;
+      new bootstrap.Modal(document.getElementById('deleteSheetModal')).show();
+    }
+    document.getElementById('confirmDeleteSheetBtn').onclick = async function() {
+      if (!deleteSheetId) return;
+      const res = await fetch(`/api/inventory/sheets/${deleteSheetId}`, { method: 'DELETE' });
+      bootstrap.Modal.getInstance(document.getElementById('deleteSheetModal')).hide();
+      if (res.ok) {
+        showToast('Sheet deleted successfully!');
+        fetchSheets();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to delete sheet');
+      }
+      deleteSheetId = null;
+    };
+
+    let editSheetId = null;
+    function openEditSheetModal(id, name) {
+      editSheetId = id;
+      document.getElementById('editSheetId').value = id;
+      document.getElementById('editSheetName').value = name;
+      new bootstrap.Modal(document.getElementById('editSheetModal')).show();
+    }
+    document.getElementById('editSheetForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('editSheetId').value;
+      const name = document.getElementById('editSheetName').value;
+      const res = await fetch(`/api/inventory/sheets/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      bootstrap.Modal.getInstance(document.getElementById('editSheetModal')).hide();
+      if (res.ok) {
+        showToast('Sheet updated successfully!');
+        fetchSheets();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to update sheet');
+      }
+      editSheetId = null;
+    };
+
+    let addUsersSheetId = null;
+    function openAddUsersModal(sheetId, sheetName) {
+      addUsersSheetId = sheetId;
+      document.getElementById('addUsersSheetId').value = sheetId;
+      document.getElementById('addUsersUserIds').value = '';
+      new bootstrap.Modal(document.getElementById('addUsersModal')).show();
+    }
+    document.getElementById('addUsersForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const sheetId = document.getElementById('addUsersSheetId').value;
+      const userIds = document.getElementById('addUsersUserIds').value.split(',').map(x => x.trim()).filter(Boolean);
+      const res = await fetch(`/api/inventory/${sheetId}/add-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds })
+      });
+      bootstrap.Modal.getInstance(document.getElementById('addUsersModal')).hide();
+      if (res.ok) {
+        showToast('Users added to sheet!');
+        fetchSheets();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to add users');
+      }
+      addUsersSheetId = null;
+    };
+
+    let transferFromSheetId = null;
+    function openTransferUserModal(sheetId, sheetName) {
+      transferFromSheetId = sheetId;
+      document.getElementById('transferFromSheetId').value = sheetId;
+      document.getElementById('transferUserId').value = '';
+      document.getElementById('transferToSheetDropdown').value = '';
+      new bootstrap.Modal(document.getElementById('transferUserModal')).show();
+    }
+    document.getElementById('transferUserForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const fromSheetId = document.getElementById('transferFromSheetId').value;
+      const userId = document.getElementById('transferUserId').value;
+      const toSheetId = document.getElementById('transferToSheetDropdown').value;
+      const res = await fetch('/api/inventory/transfer-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, fromSheetId, toSheetId })
+      });
+      bootstrap.Modal.getInstance(document.getElementById('transferUserModal')).hide();
+      if (res.ok) {
+        showToast('User transferred successfully!');
+        fetchSheets();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to transfer user');
+      }
+      transferFromSheetId = null;
+    };
+  </script>
+</body>
+</html> 

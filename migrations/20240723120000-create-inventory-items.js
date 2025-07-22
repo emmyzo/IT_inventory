@@ -1,0 +1,40 @@
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('InventoryItems', {
+      id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
+      itSpoc: { type: Sequelize.STRING, allowNull: false },
+      userType: { type: Sequelize.ENUM('Single', 'Multiple'), allowNull: false },
+      userName: { type: Sequelize.STRING, allowNull: true },
+      userEmail: { type: Sequelize.STRING, allowNull: true },
+      multipleUsers: { type: Sequelize.JSON, allowNull: true, defaultValue: null },
+      deviceType: { type: Sequelize.ENUM('Laptop','Desktop','Monitor','UPS','Printer'), allowNull: false },
+      windows: { type: Sequelize.ENUM('10','11'), allowNull: true },
+      windowsType: { type: Sequelize.ENUM('Windows Home','Windows Pro','Windows Enterprise','Windows Education','Windows Pro for Workstations','Windows Server 2016','Windows Server 2019','Windows Server 2022'), allowNull: true },
+      sapUser: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      microsoftOffice: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      systemSerial: { type: Sequelize.STRING, allowNull: true },
+      ram: { type: Sequelize.STRING, allowNull: true },
+      rom: { type: Sequelize.STRING, allowNull: true },
+      hardDriveType: { type: Sequelize.ENUM('HDD','SSD'), allowNull: true },
+      department: { type: Sequelize.STRING, allowNull: true },
+      location: { type: Sequelize.STRING, allowNull: true },
+      zscaler: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      trellix: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      sccm: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      ivanti: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      bitLocker: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      secureLogin: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      joinedToOlamDomain: { type: Sequelize.ENUM('Yes','No'), allowNull: true },
+      po: { type: Sequelize.STRING, allowNull: true },
+      purchaseDate: { type: Sequelize.DATEONLY, allowNull: true },
+      invoiceNumber: { type: Sequelize.STRING, allowNull: true },
+      description: { type: Sequelize.TEXT, allowNull: true },
+      status: { type: Sequelize.ENUM('active', 'inactive'), allowNull: false, defaultValue: 'active' },
+      createdAt: { type: Sequelize.DATE, allowNull: false },
+      updatedAt: { type: Sequelize.DATE, allowNull: false },
+    });
+  },
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('InventoryItems');
+  },
+}; 

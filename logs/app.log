@@ -1,0 +1,133 @@
+2025-07-19 20:03:39 [ERROR]: Login error for email emmanuel.nwogu@olam-agri.com: TypeError: Cannot read properties of undefined (reading 'findOne')
+    at C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\src\app.js:55:29
+    at Layer.handleRequest (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:295:15
+    at processParams (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:582:12)
+    at next (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:291:5)
+    at C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\body-parser\lib\read.js:132:5
+2025-07-19 20:04:06 [ERROR]: Login error for email emmanuel.nwogu@olam-agri.com: TypeError: Cannot read properties of undefined (reading 'findOne')
+    at C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\src\app.js:55:29
+    at Layer.handleRequest (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:295:15
+    at processParams (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:582:12)
+    at next (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\router\index.js:291:5)
+    at C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\body-parser\lib\read.js:132:5
+2025-07-19 20:06:50 [ERROR]: Login error for email emmanuel.nwogu@olam-agri.com: SequelizeAccessDeniedError: Access denied for user 'root'@'localhost' (using password: NO)
+    at ConnectionManager.connect (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\dialects\mysql\connection-manager.js:94:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async ConnectionManager._connect (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\dialects\abstract\connection-manager.js:222:24)
+    at async C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\dialects\abstract\connection-manager.js:174:32
+    at async ConnectionManager.getConnection (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\dialects\abstract\connection-manager.js:197:7)
+    at async C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\sequelize.js:305:26
+    at async MySQLQueryInterface.select (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async User.findAll (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\model.js:1140:21)
+    at async User.findOne (C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\node_modules\sequelize\lib\model.js:1240:12)
+    at async C:\Users\emmyz\OneDrive\Documents\mine\cursor ai\IT Inventory\src\app.js:55:18
+2025-07-19 20:09:31 [WARN]: Failed login attempt for email: emmanuel.nwogu@olam-agri.com
+2025-07-19 20:09:48 [WARN]: Failed login attempt for email: emmanuel.nwogu@olam-agri.com
+2025-07-19 20:17:19 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:24:04 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:27:09 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:34:22 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:36:29 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:44:34 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:47:32 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 20:54:38 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 21:03:00 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 21:20:47 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 21:21:45 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 21:26:46 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 21:27:10 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 21:27:25 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 21:35:10 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 21:35:28 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 21:41:18 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 22:02:50 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 22:09:16 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 22:32:40 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 22:52:59 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 23:17:40 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-19 23:18:31 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-19 23:37:39 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 10:03:20 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 10:12:13 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 10:17:53 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 10:18:19 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 10:43:18 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 10:56:14 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 11:03:58 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 11:13:07 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 11:36:28 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 12:12:37 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 12:16:41 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 12:27:50 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 12:31:58 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 12:36:10 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 12:47:08 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 13:20:14 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 13:29:04 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 13:44:54 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 13:54:49 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 14:28:14 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 16:28:27 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 16:37:15 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 17:12:30 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 17:31:23 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 17:32:50 [INFO]: User logged in: Emmyzo  (emmyzo@olam-agri.com) [Role: User]
+2025-07-20 17:41:40 [INFO]: User logged in: Emmyzo  (emmyzo@olam-agri.com) [Role: User]
+2025-07-20 17:46:36 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 18:01:24 [WARN]: Failed login attempt for email: emmanuel.nwogu@olam-agri.com
+2025-07-20 18:01:45 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 18:33:31 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:03:13 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:06:57 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:14:47 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:17:29 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:28:04 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:33:54 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:39:26 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 19:45:23 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 21:06:32 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 21:54:15 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-20 22:13:49 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 22:15:26 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-20 22:15:49 [WARN]: Failed login attempt for email: emmyzo@olam-agri.com
+2025-07-20 22:16:02 [INFO]: User logged in: Emmyzo  (emmyzo@olam-agri.com) [Role: User]
+2025-07-20 22:16:45 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 07:20:42 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 07:27:12 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 07:34:08 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 08:36:27 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 08:58:11 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 09:21:11 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 10:14:16 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 10:30:15 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 10:52:43 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 10:56:32 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 11:01:40 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 11:12:49 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 11:16:24 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 11:31:45 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 11:56:02 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 12:11:12 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 12:21:10 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 12:26:29 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 13:07:03 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 13:07:49 [INFO]: User logged in: Emmyzo  (emmyzo@olam-agri.com) [Role: User]
+2025-07-21 13:13:01 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 13:18:04 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 13:52:36 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 13:53:12 [INFO]: User logged in: Emmyzo  (emmyzo@olam-agri.com) [Role: User]
+2025-07-21 13:55:45 [INFO]: User logged in: David Nwogu (user@olam-agri.com) [Role: User]
+2025-07-21 15:18:02 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 15:41:02 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 16:06:03 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
+2025-07-21 16:11:10 [INFO]: User logged in: Emmanuel Nwogu (emmanuel.nwogu@olam-agri.com) [Role: SUPER_ADMIN]
