@@ -26,11 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // MySQL session store options
 const sessionStoreOptions = {
-  host: 'localhost',
+  host: 'mysql.railway.internal',
   port: 3306,
   user: 'root',
-  password: 'Emmyzo@24!',
-  database: 'it_inventory',
+  password: 'mRUhTeUuCLjxUauTUSFyguRNEZhokwE',
+  database: 'railway',
 };
 const sessionStore = new MySQLStore(sessionStoreOptions);
 
