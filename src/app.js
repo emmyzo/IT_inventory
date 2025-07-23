@@ -29,7 +29,7 @@ const sessionStoreOptions = {
   host: 'mysql.railway.internal',
   port: 3306,
   user: 'root',
-  password: 'mRUhTeUuCLjxUauTUSFyguRNEZhokwE',
+  password: 'mRUhIeUuCLjxUauTUSFyguyRNEZhokwE',
   database: 'railway',
 };
 const sessionStore = new MySQLStore(sessionStoreOptions);
