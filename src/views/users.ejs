@@ -67,6 +67,7 @@
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Location</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -119,9 +120,9 @@
           </div>
           <div class="modal-body">
             <input type="hidden" name="id" id="editUserId">
-            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="name" id="editUserName" required></div>
-            <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="email" id="editUserEmail" required></div>
-            <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="location" id="editUserLocation" required></div>
+            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="editUserName" id="editUserName" readonly></div>
+            <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="editUserEmail" id="editUserEmail" readonly></div>
+            <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="editUserLocation" id="editUserLocation" readonly></div>
             <div class="mb-3"><label class="form-label">Role</label>
               <input type="text" class="form-control" id="editUserRole" readonly>
               <% if (user.role === 'SUPER_ADMIN') { %>
@@ -146,15 +147,25 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
+          <h5 class="modal-title" id="deleteUserModalLabel">Delete & Replace User</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="deleteUserModalBody">
-          Are you sure you want to delete this user?
+          Are you sure you want to delete this user? Please provide details for the replacement user who will take over this user's dashboard and data.
+          <form id="replaceUserForm">
+            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="name" id="replaceUserName" required></div>
+            <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="email" id="replaceUserEmail" required pattern="^[^@\s]+@olam-agri\.com$" title="Email must end with @olam-agri.com"></div>
+            <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" id="replaceUserPassword" required></div>
+            <div class="mb-3"><label class="form-label">Role</label>
+              <select class="form-select" name="roleId" id="replaceUserRoleId" required>
+                <option value="">Select Role</option>
+              </select>
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteUserBtn">Delete</button>
+          <button type="button" class="btn btn-danger" id="confirmReplaceUserBtn">Delete & Replace</button>
         </div>
       </div>
     </div>
@@ -165,23 +176,42 @@
       <div class="modal-content">
         <form id="transferUserForm">
           <div class="modal-header">
-            <h5 class="modal-title" id="transferUserModalLabel">Transfer User</h5>
+            <h5 class="modal-title" id="transferUserModalLabel">Transfer User Dashboard</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <input type="hidden" name="userId" id="transferUserId">
-            <div class="mb-3"><label class="form-label">User</label><input type="text" class="form-control" id="transferUserName" readonly></div>
-            <div class="mb-3"><label class="form-label">Target Sheet</label>
-              <select class="form-select" name="toSheetId" id="transferSheetDropdown">
-                <option value="1">Sheet 1</option>
-                <option value="2">Sheet 2</option>
-                <option value="3">Sheet 3</option>
-              </select>
+            <input type="hidden" name="fromUserId" id="transferFromUserId">
+            <div class="mb-3"><label class="form-label">From User</label><input type="text" class="form-control" id="transferFromUserName" readonly></div>
+            <div class="mb-3"><label class="form-label">Transfer To</label>
+              <select class="form-select" name="toUserId" id="transferToUserDropdown" required></select>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-primary">Transfer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Change Password Modal -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="changePasswordForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePasswordModalLabel">Change User Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="userId" id="changePasswordUserId">
+            <div class="mb-3"><label class="form-label">User</label><input type="text" class="form-control" id="changePasswordUserName" readonly></div>
+            <div class="mb-3"><label class="form-label">New Password</label><input type="password" class="form-control" name="newPassword" id="changePasswordNew" required></div>
+            <div class="mb-3"><label class="form-label">Confirm Password</label><input type="password" class="form-control" id="changePasswordConfirm" required></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Change Password</button>
           </div>
         </form>
       </div>
@@ -196,26 +226,38 @@
       </div>
     </div>
   </div>
+  <script>
+    // EJS will inject the user object here. Ignore linter warning if seen in editor.
+    // eslint-disable-next-line
+    const user = <%- JSON.stringify(user || null) %>;
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    let allUsers = [];
     async function fetchUsers() {
       const res = await fetch('/api/users-list');
       if (!res.ok) return;
-      const users = await res.json();
+      allUsers = await res.json();
       const tbody = document.getElementById('usersTableBody');
       tbody.innerHTML = '';
-      users.forEach((u, i) => {
+      allUsers.forEach((u, i) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i + 1}</td>
-          <td>${u.name}</td>
-          <td>${u.email}</td>
-          <td>${u.role.replace('_', ' ')}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal(${u.id}, '${u.name}', '${u.email}', '${u.role}', '${u.location || ''}')" ${u.role === 'SUPER_ADMIN' ? 'disabled' : ''}><i class="fa fa-edit"></i></button>
-            <button class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal(${u.id}, '${u.name}', '${u.role}')" ${u.role === 'SUPER_ADMIN' ? 'disabled' : ''}><i class="fa fa-trash"></i></button>
-          </td>
-        `;
+        let changePasswordBtn = '';
+        if ((user.role === 'SUPER_ADMIN' && u.role !== 'SUPER_ADMIN') || (user.role === 'ADMIN' && u.role === 'USER')) {
+          changePasswordBtn = `<button class="btn btn-sm btn-outline-warning" onclick="openChangePasswordModal(${u.id}, '${u.name}', '${u.email}', '${u.role}')"><i class="fa fa-key"></i></button>`;
+        }
+        tr.innerHTML =
+          '<td>' + (i + 1) + '</td>' +
+          '<td>' + u.name + '</td>' +
+          '<td>' + u.email + '</td>' +
+          '<td>' + u.role.replace('_', ' ') + '</td>' +
+          '<td>' + (u.location ? u.location.replace(/'/g, "&#39;") : '') + '</td>' +
+          '<td>' +
+            '<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal(' + u.id + ', \'' + u.name.replace(/'/g, "&#39;") + '\', \'' + u.email + '\', \'' + u.role + '\', \'' + (u.location || '') + '\')"' + (u.role === 'SUPER_ADMIN' ? ' disabled' : '') + '><i class="fa fa-edit"></i></button>' +
+            '<button class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal(' + u.id + ', \'' + u.name.replace(/'/g, "&#39;") + '\', \'' + u.role + '\')"' + (u.role === 'SUPER_ADMIN' ? ' disabled' : '') + '><i class="fa fa-trash"></i></button>' +
+            '<button class="btn btn-sm btn-outline-info" onclick="openTransferUserModal(' + u.id + ', \'' + u.name.replace(/'/g, "&#39;") + '\', \'' + u.email + '\', \'' + u.role + '\')"' + (u.role === 'SUPER_ADMIN' ? ' disabled' : '') + '><i class="fa fa-paper-plane"></i></button>' +
+            changePasswordBtn +
+          '</td>';
         tbody.appendChild(tr);
       });
     }
@@ -251,24 +293,53 @@
     };
 
     let deleteUserId = null;
+    let deleteUserRole = null;
     function openDeleteUserModal(id, name, role) {
       if (role === 'SUPER_ADMIN') return;
       deleteUserId = id;
-      document.getElementById('deleteUserModalBody').textContent = `Are you sure you want to delete user '${name}'?`;
+      deleteUserRole = role;
+      document.getElementById('deleteUserModalBody').querySelector('form').reset();
+      document.getElementById('deleteUserModalBody').querySelector('form').style.display = 'block';
+      // Fetch roles for dropdown
+      fetch('/admin/roles').then(r => r.json()).then(roles => {
+        const dropdown = document.getElementById('replaceUserRoleId');
+        dropdown.innerHTML = '<option value="">Select Role</option>';
+        roles.forEach(role => {
+          if (role.name !== 'SUPER_ADMIN') {
+            dropdown.innerHTML += `<option value="${role.id}">${role.name}</option>`;
+          }
+        });
+      });
       new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
     }
-    document.getElementById('confirmDeleteUserBtn').onclick = async function() {
+    document.getElementById('confirmReplaceUserBtn').onclick = async function() {
       if (!deleteUserId) return;
-      const res = await fetch(`/api/users/${deleteUserId}`, { method: 'DELETE' });
+      const form = document.getElementById('replaceUserForm');
+      if (!form.reportValidity()) return;
+      const data = {
+        oldUserId: deleteUserId,
+        name: form.name.value,
+        email: form.email.value,
+        password: form.password.value,
+        roleId: form.roleId.value
+      };
+      document.getElementById('confirmReplaceUserBtn').disabled = true;
+      const res = await fetch('/admin/users/replace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      document.getElementById('confirmReplaceUserBtn').disabled = false;
       bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
       if (res.ok) {
-        showToast('User deleted successfully!');
+        showToast('User replaced and data transferred successfully!');
         fetchUsers();
       } else {
         const err = await res.json();
-        showToast(err.error || 'Failed to delete user');
+        showToast(err.error || 'Failed to replace user');
       }
       deleteUserId = null;
+      deleteUserRole = null;
     };
 
     let editUserId = null;
@@ -304,6 +375,90 @@
         fetchUsers();
       } else {
         showToast('Failed to update user');
+      }
+    };
+
+    function openTransferUserModal(userId, userName, userEmail, userRole) {
+      document.getElementById('transferFromUserId').value = userId;
+      document.getElementById('transferFromUserName').value = userName + ' (' + userEmail + ')';
+      const dropdown = document.getElementById('transferToUserDropdown');
+      dropdown.innerHTML = '';
+      allUsers.forEach(u => {
+        if (u.id !== userId && u.role !== 'SUPER_ADMIN') {
+          const opt = document.createElement('option');
+          opt.value = u.id;
+          opt.textContent = u.name + ' (' + u.email + ')';
+          dropdown.appendChild(opt);
+        }
+      });
+      new bootstrap.Modal(document.getElementById('transferUserModal')).show();
+    }
+    document.getElementById('transferUserForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const fromUserId = document.getElementById('transferFromUserId').value;
+      const toUserId = document.getElementById('transferToUserDropdown').value;
+      const btn = this.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Transferring...';
+      try {
+        const res = await fetch(`/admin/users/transfer-dashboard`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fromUserId, toUserId })
+        });
+        if (res.ok) {
+          bootstrap.Modal.getInstance(document.getElementById('transferUserModal')).hide();
+          showToast('Dashboard transferred successfully!');
+          fetchUsers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to transfer dashboard');
+        }
+      } catch (err) {
+        showToast('Network error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Transfer';
+      }
+    };
+
+    function openChangePasswordModal(userId, userName, userEmail, userRole) {
+      document.getElementById('changePasswordUserId').value = userId;
+      document.getElementById('changePasswordUserName').value = userName + ' (' + userEmail + ')';
+      document.getElementById('changePasswordNew').value = '';
+      document.getElementById('changePasswordConfirm').value = '';
+      new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+    }
+    document.getElementById('changePasswordForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const userId = document.getElementById('changePasswordUserId').value;
+      const newPassword = document.getElementById('changePasswordNew').value;
+      const confirmPassword = document.getElementById('changePasswordConfirm').value;
+      if (newPassword !== confirmPassword) {
+        showToast('Passwords do not match!');
+        return;
+      }
+      const btn = this.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Changing...';
+      try {
+        const res = await fetch(`/admin/users/${userId}/change-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newPassword })
+        });
+        if (res.ok) {
+          bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+          showToast('Password changed successfully!');
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to change password');
+        }
+      } catch (err) {
+        showToast('Network error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Change Password';
       }
     };
   </script>

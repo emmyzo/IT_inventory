@@ -49,6 +49,10 @@ const InventoryItem = sequelize.define('InventoryItem', {
           instance[field] = null;
         }
       });
+      // Trim whitespace from itSpoc
+      if (typeof instance.itSpoc === 'string') {
+        instance.itSpoc = instance.itSpoc.trim();
+      }
     },
     beforeUpdate: (instance) => {
       // Convert empty strings to null for ENUM fields
@@ -58,6 +62,10 @@ const InventoryItem = sequelize.define('InventoryItem', {
           instance[field] = null;
         }
       });
+      // Trim whitespace from itSpoc
+      if (typeof instance.itSpoc === 'string') {
+        instance.itSpoc = instance.itSpoc.trim();
+      }
     }
   }
 });

@@ -1,4 +1,5 @@
 const { InventoryItem, User, Role } = require('../models');
+const { Op } = require('sequelize');
 
 // Get all inventory items (SUPER_ADMIN/Admin: all, User: only their own)
 exports.getAllInventory = async (req, res) => {
@@ -46,6 +47,10 @@ exports.getInventoryById = async (req, res) => {
 exports.createInventory = async (req, res) => {
   try {
     let data = { ...req.body };
+    // Backend validation for emailId
+    if (data.emailId && !/^.+@olam-agri\.com$/.test(data.emailId.trim())) {
+      return res.status(400).json({ error: 'Email ID must end with @olam-agri.com' });
+    }
     if (data.multipleUsers && typeof data.multipleUsers === 'string') {
       try { data.multipleUsers = JSON.parse(data.multipleUsers); } catch (e) { data.multipleUsers = null; }
     }
@@ -74,6 +79,9 @@ exports.createInventory = async (req, res) => {
   }
 };
 
+// Temporary in-memory debug log for update attempts
+const updateDebugLog = [];
+
 // Update inventory item (role/ownership check)
 exports.updateInventory = async (req, res) => {
   try {
@@ -85,72 +93,49 @@ exports.updateInventory = async (req, res) => {
       (item.multipleUsers && JSON.stringify(item.multipleUsers).includes(req.user.email))
     ) {
       let data = { ...req.body };
+      // Detailed logging
+      const debugEntry = {
+        timestamp: new Date().toISOString(),
+        params: req.params,
+        body: req.body,
+        itemBefore: item.toJSON(),
+        result: null,
+        error: null
+      };
+      // Backend validation for emailId
+      if (data.emailId && !/^.+@olam-agri\.com$/.test(data.emailId.trim())) {
+        debugEntry.error = 'Invalid emailId';
+        updateDebugLog.push(debugEntry);
+        if (updateDebugLog.length > 10) updateDebugLog.shift();
+        return res.status(400).json({ error: 'Email ID must end with @olam-agri.com' });
+      }
       if (data.multipleUsers && typeof data.multipleUsers === 'string') {
         try { data.multipleUsers = JSON.parse(data.multipleUsers); } catch (e) { data.multipleUsers = null; }
       }
-      // Handle userType switch between Single and Multiple
-      if (data.userType === 'Single') {
-        // If switching to Single, keep userName/userEmail, clear multipleUsers
-        if (typeof data.userName === 'undefined' && item.userName) data.userName = item.userName;
-        if (typeof data.userEmail === 'undefined' && item.userEmail) data.userEmail = item.userEmail;
-        data.multipleUsers = null;
-      } else if (data.userType === 'Multiple') {
-        // If switching to Multiple, collect all multiUserName/multiUserEmail fields
-        const multiUsers = [];
-        Object.keys(data).forEach(key => {
-          if (key.startsWith('multiUserName')) {
-            const idx = key.replace('multiUserName', '');
-            const name = data[key];
-            const email = data['multiUserEmail' + idx];
-            if (name && email) multiUsers.push({ name, email });
-            delete data[key];
-            delete data['multiUserEmail' + idx];
-          }
-        });
-        data.multipleUsers = multiUsers.length ? multiUsers : null;
-        data.userName = null;
-        data.userEmail = null;
+      try {
+        await item.update(data);
+        debugEntry.result = item.toJSON();
+      } catch (err) {
+        debugEntry.error = err.message;
       }
-      // In updateInventory, for 'Multiple' userType, only accept the first user in multipleUsers array
-      if (data.userType === 'Multiple' && Array.isArray(data.multipleUsers)) {
-        if (data.multipleUsers.length > 1) {
-          data.multipleUsers = [data.multipleUsers[0]];
-        }
+      updateDebugLog.push(debugEntry);
+      if (updateDebugLog.length > 10) updateDebugLog.shift();
+      if (debugEntry.error) {
+        return res.status(400).json({ error: debugEntry.error });
       }
-      // Prevent updates to deviceType, deviceBrand, deviceModel, systemSerial
-      delete data.deviceType;
-      delete data.deviceBrand;
-      delete data.deviceModel;
-      delete data.systemSerial;
-      // Prevent updates to PO and invoiceNumber for all users
-      delete data.po;
-      delete data.invoiceNumber;
-      // Prevent updates to itSpoc and location
-      delete data.itSpoc;
-      delete data.location;
-      // Sanitize purchaseDate
-      if (data.purchaseDate) {
-        // Accept only valid YYYY-MM-DD format
-        const d = new Date(data.purchaseDate);
-        if (isNaN(d.getTime()) || !/^\d{4}-\d{2}-\d{2}$/.test(data.purchaseDate)) {
-          data.purchaseDate = null;
-        }
-      }
-      // Only update description if status is being set to 'spares', 'scrap', or moving from 'deleted' to 'scrap'
-      if ((data.status === 'spares' || data.status === 'scrap') && data.description) {
-        item.description = data.description;
-      }
-      // If restoring (status = 'active'), clear description
-      if (data.status === 'active') {
-        item.description = null;
-      }
-      await item.update(data);
       return res.json(item);
     }
     return res.status(403).json({ error: 'Forbidden' });
   } catch (err) {
+    updateDebugLog.push({ timestamp: new Date().toISOString(), params: req.params, body: req.body, error: err.message });
+    if (updateDebugLog.length > 10) updateDebugLog.shift();
     res.status(400).json({ error: err.message });
   }
+};
+
+// Temporary debug endpoint
+exports.getUpdateDebugLog = (req, res) => {
+  res.json(updateDebugLog);
 };
 
 // Restore inventory item (change status from spares to active)
@@ -192,8 +177,8 @@ exports.transferInventory = async (req, res) => {
     await item.update({
       userEmail: targetUser.email,
       itSpoc: targetUser.username,
-      // Reset user-specific fields
-      userName: targetUser.username,
+      location: targetUser.location,
+      // Do NOT update userName during transfer
       multipleUsers: null,
       userType: 'Single'
     });
@@ -256,13 +241,47 @@ exports.getUniqueItSpocs = async (req, res) => {
 
 // Get inventory items filtered by IT SPOC name and status
 exports.getInventoryByItSpoc = async (req, res) => {
+  let { itSpoc, status } = req.query;
+  console.log('Received filter request:', { itSpoc, status });
+  if (!itSpoc) return res.status(400).json({ error: 'Missing itSpoc parameter' });
   try {
-    const { itSpoc, status } = req.query;
-    if (!itSpoc) return res.status(400).json({ error: 'Missing itSpoc parameter' });
-    const where = { itSpoc };
+    itSpoc = itSpoc.trim().toLowerCase();
+    const where = {};
+    // Database-agnostic case-insensitive match for itSpoc
+    where[InventoryItem.sequelize.where(
+      InventoryItem.sequelize.fn('LOWER', InventoryItem.sequelize.col('itSpoc')),
+      itSpoc
+    )] = true;
     if (status) where.status = status;
+    console.log('Sequelize where clause:', where);
     const items = await InventoryItem.findAll({ where });
-    res.json(items);
+    res.status(200).json(Array.isArray(items) ? items : []);
+  } catch (err) {
+    console.error('Error in getInventoryByItSpoc:', err);
+    // Always return an array, even on error
+    res.status(200).json([]);
+  }
+};
+
+// Get all unique IT SPOC names and statuses
+exports.getUniqueItSpocsAndStatuses = async (req, res) => {
+  try {
+    const itSpocs = await InventoryItem.findAll({
+      attributes: [
+        [InventoryItem.sequelize.fn('DISTINCT', InventoryItem.sequelize.col('itSpoc')), 'itSpoc']
+      ],
+      raw: true
+    });
+    const statuses = await InventoryItem.findAll({
+      attributes: [
+        [InventoryItem.sequelize.fn('DISTINCT', InventoryItem.sequelize.col('status')), 'status']
+      ],
+      raw: true
+    });
+    res.json({
+      itSpocs: itSpocs.map(row => row.itSpoc).filter(Boolean),
+      statuses: statuses.map(row => row.status).filter(Boolean)
+    });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }

@@ -60,14 +60,6 @@
         <div class="input-group input-group-sm" style="width: 300px;">
           <input id="searchBar" class="form-control" type="text" placeholder="Search inventory...">
           <button id="searchBtn" class="btn btn-outline-success" type="button"><i class="fa fa-search" style="color: green;"></i></button>
-          <div class="dropdown">
-            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="itSpocDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fa fa-filter"></i> IT SPOC
-            </button>
-            <ul class="dropdown-menu" id="itSpocDropdownMenu" aria-labelledby="itSpocDropdownBtn">
-              <li><a class="dropdown-item" href="#" data-itspoc="__all__">Show All</a></li>
-            </ul>
-          </div>
         </div>
       </div>
       <div class="table-responsive">
@@ -118,43 +110,16 @@
   <script>
     const items = <%- JSON.stringify(items || []) %>;
     const activeTab = '<%= activeTab %>';
-    let filteredItems = [...items];
-    let allItems = [...items];
-    let sortAsc = true;
-    async function fetchItSpocs() {
-      try {
-        const res = await fetch('/api/inventory/itspocs', { credentials: 'same-origin' });
-        const names = await res.json();
-        const menu = document.getElementById('itSpocDropdownMenu');
-        menu.innerHTML = '<li><a class="dropdown-item" href="#" data-itspoc="__all__">Show All</a></li>';
-        names.forEach(name => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a class="dropdown-item" href="#" data-itspoc="${encodeURIComponent(name)}">${name}</a>`;
-          menu.appendChild(li);
-        });
-      } catch (err) {
-        alert('Failed to load IT SPOC names.');
-      }
-    }
-    async function fetchItemsByItSpoc(itSpoc) {
-      try {
-        if (itSpoc === '__all__') {
-          filteredItems = [...allItems];
-          renderTable();
-          return;
-        }
-        const res = await fetch(`/api/inventory/by-itspoc?itSpoc=${encodeURIComponent(itSpoc)}&status=${encodeURIComponent(activeTab)}`, { credentials: 'same-origin' });
-        if (!res.ok) throw new Error('Failed to fetch items');
-        filteredItems = await res.json();
-        renderTable();
-      } catch (err) {
-        alert('Failed to filter by IT SPOC.');
-      }
-    }
+    let currentItems = [...items];
     function renderTable() {
       const tbody = document.getElementById('adminInventoryStatusTableBody');
       tbody.innerHTML = '';
-      filteredItems.forEach((item, i) => {
+      const search = document.getElementById('searchBar').value.toLowerCase();
+      let itemsToRender = currentItems;
+      if (search) {
+        itemsToRender = itemsToRender.filter(item => Object.values(item).some(val => (val + '').toLowerCase().includes(search)));
+      }
+      itemsToRender.forEach((item, i) => {
         let row = `<tr>
           <td>${i + 1}</td>
           <td>${item.itSpoc || ''}</td>
@@ -196,22 +161,13 @@
       });
     }
     function searchTable() {
-      const search = document.getElementById('searchBar').value.toLowerCase();
-      filteredItems = allItems.filter(item => Object.values(item).some(val => (val + '').toLowerCase().includes(search)));
       renderTable();
     }
     document.getElementById('searchBar').addEventListener('input', searchTable);
     document.getElementById('searchBtn').addEventListener('click', searchTable);
-    document.getElementById('itSpocDropdownMenu').addEventListener('click', function(e) {
-      if (e.target && e.target.matches('a[data-itspoc]')) {
-        const itSpoc = decodeURIComponent(e.target.getAttribute('data-itspoc'));
-        fetchItemsByItSpoc(itSpoc);
-      }
-    });
-    // Initial sort by user email id ascending
-    filteredItems.sort((a, b) => (a.userEmail || '').localeCompare(b.userEmail || ''));
+    // Initial load: show all items for the current tab
+    currentItems.sort((a, b) => (a.userEmail || '').localeCompare(b.userEmail || ''));
     renderTable();
-    fetchItSpocs();
     function logout() {
       localStorage.clear();
       window.location.href = '/logout';

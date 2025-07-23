@@ -215,11 +215,6 @@
         <div class="card-value" id="cardMonitors">0</div>
       </div>
       <div class="dashboard-card">
-        <div class="card-icon"><i class="fa fa-battery-full"></i></div>
-        <div class="card-title">UPS</div>
-        <div class="card-value" id="cardUPS">0</div>
-      </div>
-      <div class="dashboard-card">
         <div class="card-icon"><i class="fa fa-print"></i></div>
         <div class="card-title">Printers</div>
         <div class="card-value" id="cardPrinters">0</div>
@@ -344,7 +339,6 @@
       document.getElementById('cardLaptops').textContent = items.filter(i => norm(i.deviceType) === 'laptop').length;
       document.getElementById('cardDesktops').textContent = items.filter(i => norm(i.deviceType) === 'desktop').length;
       document.getElementById('cardMonitors').textContent = items.filter(i => norm(i.deviceType) === 'monitor').length;
-      document.getElementById('cardUPS').textContent = items.filter(i => norm(i.deviceType) === 'ups').length;
       document.getElementById('cardPrinters').textContent = items.filter(i => norm(i.deviceType) === 'printer').length;
     }
     fetchDashboardStats();

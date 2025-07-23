@@ -9,6 +9,7 @@ router.get('/admin/users', requireAuth, requireRole('SUPER_ADMIN'), adminControl
 router.post('/admin/users', requireAuth, requireRole('SUPER_ADMIN'), adminController.createUser);
 router.put('/admin/users/:id', requireAuth, requireRole('SUPER_ADMIN'), adminController.updateUser);
 router.delete('/admin/users/:id', requireAuth, requireRole('SUPER_ADMIN'), adminController.deleteUser);
+router.post('/admin/users/replace', requireAuth, requireRole('SUPER_ADMIN'), adminController.replaceUser);
 
 // Role management
 router.get('/admin/roles', requireAuth, requireRole('SUPER_ADMIN'), adminController.getAllRoles);
@@ -29,5 +30,8 @@ router.get('/admin/user-dashboard/:userId', requireAuth, requireRole(['SUPER_ADM
   // Pass a flag to enable admin rights in the dashboard view
   res.render('user_dashboard', { user, isAdmin: true, activeTab: 'dashboard' });
 });
+
+router.post('/admin/users/transfer-dashboard', adminController.transferUserDashboard);
+router.post('/admin/users/:userId/change-password', adminController.changeUserPassword);
 
 module.exports = router; 

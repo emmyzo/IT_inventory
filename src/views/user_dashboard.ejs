@@ -155,11 +155,6 @@
         socket.on('connect', () => {
             socket.emit('register', currentUser.id);
         });
-
-        socket.on('transfer_notification', (data) => {
-            alert(data.message);
-            fetchInventoryRows();
-        });
     }
 
     const activeTab = '<%= activeTab %>';
@@ -213,11 +208,11 @@
         } else if (activeTab === 'deleted') {
           actionButtons = `<button class='btn btn-sm btn-success' onclick='restoreInventoryRow(${item.id})' title='Restore'><i class="fa fa-undo"></i></button>`;
         } else {
-          actionButtons = `<button class='btn btn-sm btn-primary' onclick='openEditInventoryModal(${JSON.stringify(item)})' title='Edit'><i class="fa fa-edit"></i></button> <button class='btn btn-sm btn-warning' onclick='openMoveInventoryModal(${JSON.stringify(item)})' title='Move to Spares'><i class="fa fa-exchange-alt"></i></button> <button class='btn btn-sm' style='background: #800080; color: #fff;' onclick='openMoveToScrapModal(${JSON.stringify(item)})' title='Move to Scrap'><i class="fa fa-recycle"></i></button> <button class='btn btn-sm btn-danger' onclick='openDeleteInventoryModal(${JSON.stringify(item)})' title='Delete'><i class="fa fa-trash"></i></button> <button class='btn btn-sm btn-info' onclick='openTransferInventoryModal(${JSON.stringify(item)})' title='Transfer'><i class="fa fa-exchange-alt"></i></button>`;
+          actionButtons = `<button class='btn btn-sm btn-primary' onclick='openEditInventoryModal(${JSON.stringify(item)})' title='Edit'><i class="fa fa-edit"></i></button> <button class='btn btn-sm btn-warning' onclick='openMoveInventoryModal(${JSON.stringify(item)})' title='Move to Spares'><i class="fa fa-exchange-alt"></i></button> <button class='btn btn-sm' style='background: #800080; color: #fff;' onclick='openMoveToScrapModal(${JSON.stringify(item)})' title='Move to Scrap'><i class="fa fa-recycle"></i></button> <button class='btn btn-sm btn-danger' onclick='openDeleteInventoryModal(${JSON.stringify(item)})' title='Delete'><i class="fa fa-trash"></i></button> <button class='btn btn-sm btn-info' onclick='openTransferInventoryModal(${JSON.stringify(item)})' title='Transfer'><i class="fa fa-paper-plane"></i></button>`;
         }
 
         tr.innerHTML = `
-          <td>${i + 1}</td><td>${item.itSpoc || ''}</td><td>${item.userEmail || ''}</td><td>${item.userType || ''}</td><td>${item.multipleUsers && item.multipleUsers.length ? item.multipleUsers[0].name : (item.userName || '')}</td><td>${item.emailId || ''}</td><td>${item.deviceType || ''}</td><td>${item.deviceBrand || ''}</td><td>${item.deviceModel || ''}</td><td>${item.hostname || ''}</td><td>${item.windows || ''}</td><td>${item.windowsType || ''}</td><td>${item.sapUser || ''}</td><td>${item.microsoftOffice || ''}</td><td>${item.serialNumber || ''}</td><td>${item.ram || ''}</td><td>${item.rom || ''}</td><td>${item.hardDriveType || ''}</td><td>${item.department || ''}</td><td>${item.location || ''}</td><td>${item.zscaler || ''}</td><td>${item.trellix || ''}</td><td>${item.sccm || ''}</td><td>${item.ivanti || ''}</td><td>${item.bitLocker || ''}</td><td>${item.secureLogin || ''}</td><td>${item.joinedToOlamDomain || ''}</td><td>${item.po || ''}</td><td>${item.invoiceNumber || ''}</td><td>${item.purchaseDate || ''}</td><td>${item.warranty || ''}</td><td>${item.hr || ''}</td>
+          <td>${i + 1}</td><td>${item.itSpoc || ''}</td><td>${item.userEmail || ''}</td><td>${item.userType || ''}</td><td>${item.userName || ''}</td><td>${item.emailId || ''}</td><td>${item.deviceType || ''}</td><td>${item.deviceBrand || ''}</td><td>${item.deviceModel || ''}</td><td>${item.hostname || ''}</td><td>${item.windows || ''}</td><td>${item.windowsType || ''}</td><td>${item.sapUser || ''}</td><td>${item.microsoftOffice || ''}</td><td>${item.serialNumber || ''}</td><td>${item.ram || ''}</td><td>${item.rom || ''}</td><td>${item.hardDriveType || ''}</td><td>${item.department || ''}</td><td>${item.location || ''}</td><td>${item.zscaler || ''}</td><td>${item.trellix || ''}</td><td>${item.sccm || ''}</td><td>${item.ivanti || ''}</td><td>${item.bitLocker || ''}</td><td>${item.secureLogin || ''}</td><td>${item.joinedToOlamDomain || ''}</td><td>${item.po || ''}</td><td>${item.invoiceNumber || ''}</td><td>${item.purchaseDate || ''}</td><td>${item.warranty || ''}</td><td>${item.hr || ''}</td>
           ${(activeTab === 'spares' || activeTab === 'scrap' || activeTab === 'deleted') ? `<td>${item.description || ''}</td>` : ''}
           <td>${actionButtons}</td>
         `;
@@ -283,23 +278,34 @@
       const id = data.id;
       delete data.id;
       
+      alert('[DEBUG] Edit form submitted! ID: ' + id + ', emailId: ' + data.emailId);
+      console.log('[DEBUG] Edit form submitted! ID:', id, 'Payload:', data);
+      
       const btn = form.querySelector('button[type="submit"]');
       btn.disabled = true;
       btn.textContent = 'Saving...';
       
+      // Log outgoing payload and URL
+      const url = `/api/inventory/${id}`;
+      alert('[DEBUG] Sending PUT request to: ' + url);
+      console.log('[DEBUG] Sending PUT request to:', url, 'with data:', data);
       try {
-        const res = await fetch(`/api/inventory/${id}`, {
+        const res = await fetch(url, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
           body: JSON.stringify(data)
         });
+        // Log response
+        const responseJson = await res.clone().json().catch(() => null);
+        alert('[DEBUG] Server response: ' + JSON.stringify(responseJson));
+        console.log('[DEBUG] Server response:', responseJson);
         if (res.ok) {
           bootstrap.Modal.getInstance(document.getElementById('editInventoryDashboardModal')).hide();
           fetchInventoryRows();
           alert('Inventory row updated successfully!');
         } else {
-          const err = await res.json();
+          const err = responseJson || {};
           alert(err.error || 'Failed to update inventory row');
         }
       } catch (err) {
@@ -372,19 +378,23 @@
         <input type="hidden" name="id" value="${item.id}">
         <div class="mb-3"><label class="form-label">IT SPOC</label><input type="text" class="form-control" name="itSpoc" value="${item.itSpoc || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">User type</label><select class="form-select" name="userType" id="editUserTypeSelect" required><option value="Single" ${item.userType === 'Single' ? 'selected' : ''}>Single</option><option value="Multiple" ${item.userType === 'Multiple' ? 'selected' : ''}>Multiple</option></select></div>
+        <div class="mb-3"><label class="form-label">Name of user</label><input type="text" class="form-control" name="userName" value="${item.userName || ''}" required></div>
+        <div class="mb-3"><label class="form-label">User email ID</label><input type="text" class="form-control" name="userEmail" value="${item.userEmail || ''}" readonly></div>
+        <div class="mb-3"><label class="form-label">Email ID</label><input type="email" class="form-control" name="emailId" id="editEmailIdInput" value="${item.emailId || ''}" required pattern="^[^@\s]+@olam-agri\.com$"></div>
+        <div id="editEmailIdError" class="text-danger mb-2" style="display:none;"></div>
         <div id="editUserFieldsContainer"></div>
         <div class="mb-3"><label class="form-label">Device type</label><input type="text" class="form-control" name="deviceType" value="${item.deviceType || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">Device brand</label><input type="text" class="form-control" name="deviceBrand" value="${item.deviceBrand || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">Device model</label><input type="text" class="form-control" name="deviceModel" value="${item.deviceModel || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">Hostname</label><input type="text" class="form-control" name="hostname" value="${item.hostname || ''}"></div>
-        <div class="mb-3"><label class="form-label">Windows</label><input type="text" class="form-control" name="windows" value="${item.windows || ''}"></div>
-        <div class="mb-3"><label class="form-label">Windows type</label><input type="text" class="form-control" name="windowsType" value="${item.windowsType || ''}"></div>
+        <div class="mb-3"><label class="form-label">Windows</label><select class="form-select" name="windows"><option value="">--select--</option><option value="10" ${item.windows === '10' ? 'selected' : ''}>10</option><option value="11" ${item.windows === '11' ? 'selected' : ''}>11</option></select></div>
+        <div class="mb-3"><label class="form-label">Windows type</label><select class="form-select" name="windowsType"><option value="">--select--</option><option value="Windows Home" ${item.windowsType === 'Windows Home' ? 'selected' : ''}>Windows Home</option><option value="Windows Pro" ${item.windowsType === 'Windows Pro' ? 'selected' : ''}>Windows Pro</option><option value="Windows Enterprise" ${item.windowsType === 'Windows Enterprise' ? 'selected' : ''}>Windows Enterprise</option><option value="Windows Education" ${item.windowsType === 'Windows Education' ? 'selected' : ''}>Windows Education</option><option value="Windows Pro for Workstations" ${item.windowsType === 'Windows Pro for Workstations' ? 'selected' : ''}>Windows Pro for Workstations</option><option value="Windows Server 2016" ${item.windowsType === 'Windows Server 2016' ? 'selected' : ''}>Windows Server 2016</option><option value="Windows Server 2019" ${item.windowsType === 'Windows Server 2019' ? 'selected' : ''}>Windows Server 2019</option><option value="Windows Server 2022" ${item.windowsType === 'Windows Server 2022' ? 'selected' : ''}>Windows Server 2022</option></select></div>
         <div class="mb-3"><label class="form-label">SAP user</label><select class="form-select" name="sapUser"><option value="">--select--</option><option value="Yes" ${item.sapUser === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${item.sapUser === 'No' ? 'selected' : ''}>No</option></select></div>
         <div class="mb-3"><label class="form-label">Microsoft Office</label><select class="form-select" name="microsoftOffice"><option value="">--select--</option><option value="Yes" ${item.microsoftOffice === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${item.microsoftOffice === 'No' ? 'selected' : ''}>No</option></select></div>
         <div class="mb-3"><label class="form-label">Serial number</label><input type="text" class="form-control" name="serialNumber" value="${item.serialNumber || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">System RAM</label><input type="text" class="form-control" name="ram" value="${item.ram || ''}"></div>
         <div class="mb-3"><label class="form-label">System ROM</label><input type="text" class="form-control" name="rom" value="${item.rom || ''}"></div>
-        <div class="mb-3"><label class="form-label">Hard drive type</label><input type="text" class="form-control" name="hardDriveType" value="${item.hardDriveType || ''}"></div>
+        <div class="mb-3"><label class="form-label">Hard drive type</label><select class="form-select" name="hardDriveType"><option value="">--select--</option><option value="HDD" ${item.hardDriveType === 'HDD' ? 'selected' : ''}>HDD</option><option value="SSD" ${item.hardDriveType === 'SSD' ? 'selected' : ''}>SSD</option></select></div>
         <div class="mb-3"><label class="form-label">Department</label><input type="text" class="form-control" name="department" value="${item.department || ''}"></div>
         <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="location" value="${item.location || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">Zscaler</label><select class="form-select" name="zscaler"><option value="">--select--</option><option value="Yes" ${item.zscaler === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${item.zscaler === 'No' ? 'selected' : ''}>No</option></select></div>
@@ -396,11 +406,61 @@
         <div class="mb-3"><label class="form-label">Joined to Olam domain</label><select class="form-select" name="joinedToOlamDomain"><option value="">--select--</option><option value="Yes" ${item.joinedToOlamDomain === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${item.joinedToOlamDomain === 'No' ? 'selected' : ''}>No</option></select></div>
         <div class="mb-3"><label class="form-label">PO</label><input type="text" class="form-control" name="po" value="${item.po || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">Invoice number</label><input type="text" class="form-control" name="invoiceNumber" value="${item.invoiceNumber || ''}" readonly></div>
-        <div class="mb-3"><label class="form-label">Purchase date</label><input type="date" class="form-control" name="purchaseDate" value="${(item.purchaseDate || '').split('T')[0]}"></div>
-        <div class="mb-3"><label class="form-label">Warranty</label><input type="text" class="form-control" name="warranty" value="${item.warranty || ''}"></div>
+        <div class="mb-3"><label class="form-label">Purchase date</label><input type="date" class="form-control" name="purchaseDate" value="${(item.purchaseDate || '').split('T')[0]}" readonly></div>
+        <div class="mb-3"><label class="form-label">Warranty</label><input type="text" class="form-control" name="warranty" value="${item.warranty || ''}" readonly></div>
         <div class="mb-3"><label class="form-label">HR</label><input type="text" class="form-control" name="hr" value="${item.hr || ''}"></div>
       `;
       new bootstrap.Modal(document.getElementById('editInventoryDashboardModal')).show();
+
+      // Add validation for Email ID
+      const form = document.getElementById('editInventoryDashboardForm');
+      if (form) {
+        form.onsubmit = null;
+        form.addEventListener('submit', async function(e) {
+          const emailInput = document.getElementById('editEmailIdInput');
+          const errorDiv = document.getElementById('editEmailIdError');
+          if (emailInput && !/^.+@olam-agri\.com$/.test(emailInput.value.trim())) {
+            e.preventDefault();
+            errorDiv.textContent = 'Email ID must end with @olam-agri.com';
+            errorDiv.style.display = 'block';
+            emailInput.classList.add('is-invalid');
+            return false;
+          } else if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            emailInput.classList.remove('is-invalid');
+          }
+          e.preventDefault();
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+          const id = data.id;
+          delete data.id;
+          const btn = form.querySelector('button[type="submit"]');
+          btn.disabled = true;
+          btn.textContent = 'Saving...';
+          try {
+            const res = await fetch(`/api/inventory/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify(data)
+            });
+            if (res.ok) {
+              bootstrap.Modal.getInstance(document.getElementById('editInventoryDashboardModal')).hide();
+              fetchInventoryRows();
+              alert('Inventory row updated successfully!');
+            } else {
+              const err = await res.json();
+              alert(err.error || 'Failed to update inventory row');
+            }
+          } catch (err) {
+            alert('Network error');
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+          }
+        });
+      }
     };
 
     window.openMoveInventoryModal = function(item) {

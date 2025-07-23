@@ -221,4 +221,9 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// Global 404 handler (must be last)
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
 module.exports = app; 

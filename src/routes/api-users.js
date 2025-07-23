@@ -12,14 +12,19 @@ router.get('/me', requireAuth, apiUsersController.getCurrentUser);
 router.get('/users-list', async (req, res) => {
   try {
     const users = await User.findAll({ include: [Role], attributes: { exclude: ['password'] } });
-    // Format users for frontend
-    const formatted = users.map(u => ({
-      id: u.id,
-      name: u.username,
-      email: u.email,
-      role: u.Role ? u.Role.name : '',
-      location: u.location || '',
-      sheet: '', // Placeholder, update if you have sheet info
+    const InventoryItem = require('../models/inventory-item');
+    // For each user, get their active inventory item(s) and use the location from the inventory
+    const formatted = await Promise.all(users.map(async u => {
+      // Find active inventory item(s) assigned to this user
+      const inv = await InventoryItem.findOne({ where: { userEmail: u.email, status: 'active' } });
+      return {
+        id: u.id,
+        name: u.username,
+        email: u.email,
+        role: u.Role ? u.Role.name : '',
+        location: inv ? inv.location : (u.location || ''),
+        sheet: '', // Placeholder, update if you have sheet info
+      };
     }));
     res.json(formatted);
   } catch (err) {

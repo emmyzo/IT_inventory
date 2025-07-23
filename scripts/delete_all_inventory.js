@@ -1,26 +1,22 @@
-// delete_all_inventory.js
-const InventoryItem = require('../src/models/inventory-item');
-const UserInventory = require('../src/models/userinventory');
-const sequelize = require('../src/config/db');
-
-async function deleteAllInventory() {
+// Script to trim whitespace from all itSpoc values in InventoryItems
+const { InventoryItem } = require('../src/models');
+(async () => {
   try {
-    await sequelize.authenticate();
-    console.log('DB connection established.');
-    const userInvCount = await UserInventory.count();
-    const invCount = await InventoryItem.count();
-    console.log(`UserInventories: ${userInvCount}, InventoryItems: ${invCount}`);
-    if (userInvCount === 0 && invCount === 0) {
-      console.log('No inventory data to delete.');
-      process.exit(0);
+    const items = await InventoryItem.findAll();
+    for (const item of items) {
+      if (typeof item.itSpoc === 'string') {
+        const trimmed = item.itSpoc.trim();
+        if (trimmed !== item.itSpoc) {
+          item.itSpoc = trimmed;
+          await item.save();
+          console.log(`Trimmed itSpoc for item ID ${item.id}: '${item.itSpoc}'`);
+        }
+      }
     }
-    await UserInventory.destroy({ where: {} });
-    await InventoryItem.destroy({ where: {} });
-    console.log('All inventory and user-inventory records deleted.');
+    console.log('All itSpoc values trimmed.');
     process.exit(0);
   } catch (err) {
-    console.error('Error during deletion:', err);
+    console.error('Error trimming itSpoc values:', err);
     process.exit(1);
   }
-}
-deleteAllInventory(); 
+})(); 
