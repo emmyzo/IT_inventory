@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const winston = require('winston');
 const path = require('path');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const { Op } = require('sequelize');
 
 const app = express();
@@ -23,11 +24,22 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// MySQL session store options
+const sessionStoreOptions = {
+  host: 'localhost',
+  port: 3306,
+  user: 'root',
+  password: 'Emmyzo@24!',
+  database: 'it_inventory',
+};
+const sessionStore = new MySQLStore(sessionStoreOptions);
+
 // Configure express-session
 app.use(session({
   secret: 'your-session-secret', // Change this to a strong secret in production
   resave: false,
   saveUninitialized: false,
+  store: sessionStore,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
 }));
 
