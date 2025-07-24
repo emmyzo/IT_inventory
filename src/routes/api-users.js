@@ -28,6 +28,7 @@ router.get('/users-list', async (req, res) => {
     }));
     res.json(formatted);
   } catch (err) {
+    console.error('Error in /api/users-list:', err); // Log the real error
     res.status(500).json({ error: 'Server error' });
   }
 });
