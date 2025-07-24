@@ -11,7 +11,7 @@ const User = sequelize.define('User', {
   roleId: { type: DataTypes.INTEGER, references: { model: Role, key: 'id' } },
 }, {
   timestamps: true,
-  tableName: 'Users',
+  tableName: 'users',
 });
 
 User.belongsTo(Role, { foreignKey: 'roleId' });

@@ -9,7 +9,7 @@ const UserInventory = sequelize.define('UserInventory', {
   inventoryItemId: { type: DataTypes.INTEGER, references: { model: InventoryItem, key: 'id' } },
 }, {
   timestamps: true,
-  tableName: 'UserInventories',
+  tableName: 'userinventories',
 });
 
 UserInventory.belongsTo(User, { foreignKey: 'userId' });

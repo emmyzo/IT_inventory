@@ -39,7 +39,7 @@ const InventoryItem = sequelize.define('InventoryItem', {
   status: { type: DataTypes.ENUM('active', 'spares', 'deleted', 'scrap'), allowNull: false, defaultValue: 'active' },
 }, {
   timestamps: true,
-  tableName: 'InventoryItems',
+  tableName: 'inventoryitems',
   hooks: {
     beforeCreate: (instance) => {
       // Convert empty strings to null for ENUM fields
