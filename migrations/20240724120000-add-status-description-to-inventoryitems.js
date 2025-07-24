@@ -1,17 +1,8 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('InventoryItems', 'status', {
-      type: Sequelize.ENUM('active', 'inactive'),
-      allowNull: false,
-      defaultValue: 'active',
-    });
-    await queryInterface.addColumn('InventoryItems', 'description', {
-      type: Sequelize.TEXT,
-      allowNull: true,
-    });
+    // No operation: status and description columns already exist
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('InventoryItems', 'status');
-    await queryInterface.removeColumn('InventoryItems', 'description');
+    // No operation: status and description columns already exist
   }
 }; 
