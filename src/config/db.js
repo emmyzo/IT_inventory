@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize('railway', 'root', 'mRUhIeUuCLjxUauTUSFyguyRNEZhokwE', {
-  host: 'mysql.railway.internal',
+  host: 'yamabiko.proxy.rlwy.net',
   dialect: 'mysql',
   logging: false,
 });
