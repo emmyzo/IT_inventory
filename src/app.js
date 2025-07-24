@@ -26,11 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // MySQL session store options
 const sessionStoreOptions = {
-  host: 'mysql.railway.internal',
+  host: 'localhost',
   port: 3306,
   user: 'root',
-  password: 'mRUhIeUuCLjxUauTUSFyguyRNEZhokwE',
-  database: 'railway',
+  password: 'Emmyzo@24!',
+  database: 'it_inventory',
 };
 const sessionStore = new MySQLStore(sessionStoreOptions);
 
@@ -39,8 +39,11 @@ app.use(session({
   secret: 'your-session-secret', // Change this to a strong secret in production
   resave: false,
   saveUninitialized: false,
-  store: sessionStore,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    sameSite: 'lax',
+    secure: false
+  }
 }));
 
 // Middleware to inject user from session into all views
@@ -124,6 +127,7 @@ app.get('/admin/dashboard', (req, res) => {
 });
 
 app.get('/admin/users', (req, res) => {
+  console.log('Session user for /admin/users:', req.session.user);
   if (!req.session.user || (req.session.user.role !== 'SUPER_ADMIN' && req.session.user.role !== 'Admin')) {
     return res.redirect('/');
   }
@@ -131,6 +135,7 @@ app.get('/admin/users', (req, res) => {
 });
 
 app.get('/admin/inventory', (req, res) => {
+  console.log('Session user for /admin/inventory:', req.session.user);
   if (!req.session.user || (req.session.user.role !== 'SUPER_ADMIN' && req.session.user.role !== 'Admin')) {
     return res.redirect('/');
   }
@@ -138,6 +143,7 @@ app.get('/admin/inventory', (req, res) => {
 });
 
 app.get('/admin/settings', (req, res) => {
+  console.log('Session user for /admin/settings:', req.session.user);
   if (!req.session.user || (req.session.user.role !== 'SUPER_ADMIN' && req.session.user.role !== 'Admin')) {
     return res.redirect('/');
   }
@@ -145,6 +151,7 @@ app.get('/admin/settings', (req, res) => {
 });
 
 app.get('/admin/deleted-items', (req, res) => {
+  console.log('Session user for /admin/deleted-items:', req.session.user);
   if (!req.session.user || (req.session.user.role !== 'SUPER_ADMIN' && req.session.user.role !== 'Admin')) {
     return res.redirect('/');
   }
@@ -231,6 +238,12 @@ app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');
   });
+});
+
+// Add global error handler at the end of all routes
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err.stack || err);
+  res.status(500).send('Internal Server Error');
 });
 
 // Global 404 handler (must be last)

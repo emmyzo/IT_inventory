@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('railway', 'root', 'mRUhIeUuCLjxUauTUSFyguyRNEZhokwE', {
-  host: 'yamabiko.proxy.rlwy.net',
-  port: 57048,
+const sequelize = new Sequelize('it_inventory', 'root', 'Emmyzo@24!', {
+  host: 'localhost',
+  port: 3306,
   dialect: 'mysql',
   logging: false,
 });

@@ -167,7 +167,7 @@
       <li><a href="/admin/spares" class="<%= (activeTab === 'spares') ? 'active' : '' %>"><i class="fa fa-archive"></i> Spares</a></li>
       <li><a href="/admin/scrap" class="<%= (activeTab === 'scrap') ? 'active' : '' %>"><i class="fa fa-recycle"></i> Scrap</a></li>
       <li><a href="/admin/deleted-items" class="<%= (activeTab === 'deleted-items') ? 'active' : '' %>"><i class="fa fa-trash"></i> Deleted Items</a></li>
-      <li><a href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+      <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
     </ul>
   </aside>
   <main class="main-content">
@@ -231,7 +231,6 @@
               <th>Email</th>
               <th>Role</th>
               <th>Status</th>
-              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="recentUsersBody">
@@ -241,79 +240,10 @@
       </div>
     </div>
   </main>
-  <!-- Edit User Modal -->
-  <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form id="editUserForm">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" name="id" id="editUserId">
-            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="name" id="editUserName" required></div>
-            <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="email" id="editUserEmail" required></div>
-            <div class="mb-3"><label class="form-label">Role</label>
-              <input type="text" class="form-control" name="role" id="editUserRole" readonly>
-              <% if (user && user.role === 'SUPER_ADMIN') { %>
-                <label class="form-label mt-2">Assign New Role</label>
-                <select class="form-select" id="editUserRoleDropdown">
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="USER">USER</option>
-                </select>
-              <% } %>
-            </div>
-            <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="location" id="editUserLocation" required></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!-- Delete User Modal -->
-  <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to delete this user?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteUserBtn">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Success Alert -->
-  <div id="deleteSuccessAlert" class="alert alert-success position-fixed top-0 end-0 m-3 d-none" role="alert" style="z-index: 2000;">
-    User deleted successfully!
-  </div>
-  <!-- Delete User Modal for Recent Users -->
-  <div class="modal fade" id="deleteRecentUserModal" tabindex="-1" aria-labelledby="deleteRecentUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteRecentUserModalLabel">Delete User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="deleteRecentUserModalBody">
-          Are you sure you want to delete this user?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteRecentUserBtn">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Remove the Edit User Modal -->
+  <!-- Remove the Delete User Modal -->
+  <!-- Remove the Success Alert -->
+  <!-- Remove the Delete User Modal for Recent Users -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     async function fetchDashboardStats() {
@@ -357,92 +287,11 @@
           <td>${u.email}</td>
           <td>${u.role.replace('_', ' ')}</td>
           <td><span class="badge bg-success">${u.status}</span></td>
-          <td>
-            <button class="btn btn-sm btn-primary" onclick='openEditUserModal(${JSON.stringify(u)})' ${u.role === 'SUPER_ADMIN' ? 'disabled' : ''}><i class="fa fa-edit"></i></button>
-          </td>
         `;
         tbody.appendChild(tr);
       });
     }
     fetchRecentUsers();
-
-    // Modal logic
-    function openEditUserModal(user) {
-      if (user.role === 'SUPER_ADMIN') return;
-      document.getElementById('editUserId').value = user.id;
-      document.getElementById('editUserName').value = user.name;
-      document.getElementById('editUserEmail').value = user.email;
-      document.getElementById('editUserRole').value = user.role;
-      document.getElementById('editUserLocation').value = user.location || '';
-      var dropdown = document.getElementById('editUserRoleDropdown');
-      if (dropdown) {
-        dropdown.value = user.role;
-      }
-      new bootstrap.Modal(document.getElementById('editUserModal')).show();
-    }
-    function openDeleteUserModal(id, role) {
-      if (role === 'SUPER_ADMIN') return;
-      document.getElementById('confirmDeleteUserBtn').setAttribute('data-id', id);
-      new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
-    }
-    document.getElementById('editUserForm').onsubmit = async function(e) {
-      e.preventDefault();
-      const id = document.getElementById('editUserId').value;
-      const name = document.getElementById('editUserName').value;
-      const email = document.getElementById('editUserEmail').value;
-      let role = document.getElementById('editUserRole').value;
-      var dropdown = document.getElementById('editUserRoleDropdown');
-      if (dropdown) {
-        role = dropdown.value;
-      }
-      const location = document.getElementById('editUserLocation').value;
-      await fetch(`/admin/users/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, role, location })
-      });
-      bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
-      fetchRecentUsers();
-    };
-    document.getElementById('confirmDeleteUserBtn').onclick = async function() {
-      const id = this.getAttribute('data-id');
-      await fetch(`/admin/users/${id}`, { method: 'DELETE' });
-      bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
-      // Show success alert
-      const alert = document.getElementById('deleteSuccessAlert');
-      alert.classList.remove('d-none');
-      setTimeout(() => alert.classList.add('d-none'), 2000);
-      fetchRecentUsers();
-    };
-
-    let recentUserToDelete = null;
-    function openDeleteRecentUserModal(btn) {
-      recentUserToDelete = btn.getAttribute('data-id');
-      const name = btn.getAttribute('data-name');
-      document.getElementById('deleteRecentUserModalBody').textContent = `Are you sure you want to delete user '${name}'?`;
-      new bootstrap.Modal(document.getElementById('deleteRecentUserModal')).show();
-    }
-    document.getElementById('confirmDeleteRecentUserBtn').onclick = async function() {
-      if (!recentUserToDelete) return;
-      const btn = this;
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deleting...';
-      try {
-        const res = await fetch(`/api/users/${recentUserToDelete}`, { method: 'DELETE' });
-        if (res.ok) {
-          fetchRecentUsers();
-          bootstrap.Modal.getInstance(document.getElementById('deleteRecentUserModal')).hide();
-        } else {
-          const err = await res.json();
-          alert(err.error || 'Failed to delete user');
-        }
-      } catch (err) {
-        alert('Network error');
-      }
-      btn.disabled = false;
-      btn.innerHTML = 'Delete';
-      recentUserToDelete = null;
-    };
 
     function logout() {
       localStorage.clear();

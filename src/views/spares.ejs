@@ -33,9 +33,12 @@
       <div class="brand-sub" style="text-align: center;">IT Inventory</div>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="/user/dashboard" class="<%= (activeTab === 'dashboard') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Active</a></li>
-      <li><a href="/user/spares" class="<%= (activeTab === 'spares') ? 'active' : '' %>"><i class="fa fa-archive"></i> Spares</a></li>
-      <li><a href="/user/deleted" class="<%= (activeTab === 'deleted') ? 'active' : '' %>"><i class="fa fa-trash"></i> Deleted Items</a></li>
+      <li><a href="/admin/dashboard" class="<%= (activeTab === 'dashboard') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Dashboard</a></li>
+      <li><a href="/admin/users" class="<%= (activeTab === 'users') ? 'active' : '' %>"><i class="fa fa-users"></i> Users</a></li>
+      <li><a href="/admin/active" class="<%= (activeTab === 'active') ? 'active' : '' %>"><i class="fa fa-gauge"></i> Active</a></li>
+      <li><a href="/admin/spares" class="<%= (activeTab === 'spares') ? 'active' : '' %>"><i class="fa fa-archive"></i> Spares</a></li>
+      <li><a href="/admin/scrap" class="<%= (activeTab === 'scrap') ? 'active' : '' %>"><i class="fa fa-recycle"></i> Scrap</a></li>
+      <li><a href="/admin/deleted-items" class="<%= (activeTab === 'deleted-items') ? 'active' : '' %>"><i class="fa fa-trash"></i> Deleted Items</a></li>
       <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
     </ul>
   </aside>

@@ -55,7 +55,7 @@
     <div class="table-section">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="section-title mb-0">Users</div>
-        <% if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') { %>
+        <% if (user.role === 'SUPER_ADMIN' || user.role === 'Admin') { %>
         <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fa fa-plus"></i> Add User</button>
         <% } %>
       </div>
@@ -92,11 +92,11 @@
             <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="email" required pattern="^[^@\s]+@olam-agri\.com$" title="Email must end with @olam-agri.com"></div>
             <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" required></div>
             <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="location" required></div>
-            <% if (user.role === 'SUPER_ADMIN') { %>
+            <% if (user.role === 'SUPER_ADMIN' || user.role === 'Admin') { %>
             <div class="mb-3"><label class="form-label">Role</label>
               <select class="form-select" name="role">
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
               </select>
             </div>
             <% } %>
@@ -125,11 +125,11 @@
             <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="editUserLocation" id="editUserLocation" readonly></div>
             <div class="mb-3"><label class="form-label">Role</label>
               <input type="text" class="form-control" id="editUserRole" readonly>
-              <% if (user.role === 'SUPER_ADMIN') { %>
+              <% if (user.role === 'SUPER_ADMIN' || user.role === 'Admin') { %>
               <label class="form-label mt-2">Change Role</label>
               <select class="form-select" id="editUserRoleDropdown">
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
               </select>
               <% } %>
             </div>
@@ -242,22 +242,29 @@
       tbody.innerHTML = '';
       allUsers.forEach((u, i) => {
         const tr = document.createElement('tr');
-        let changePasswordBtn = '';
-        if ((user.role === 'SUPER_ADMIN' && u.role !== 'SUPER_ADMIN') || (user.role === 'ADMIN' && u.role === 'USER')) {
-          changePasswordBtn = `<button class="btn btn-sm btn-outline-warning" onclick="openChangePasswordModal(${u.id}, '${u.name}', '${u.email}', '${u.role}')"><i class="fa fa-key"></i></button>`;
+        let canEdit = false, canDelete = false, canTransfer = false, canReset = false;
+        if (user.role === 'SUPER_ADMIN' && u.role !== 'SUPER_ADMIN') {
+          canEdit = canDelete = canTransfer = canReset = true;
         }
+        if (user.role === 'Admin' && u.role === 'User') {
+          canEdit = canDelete = canTransfer = canReset = true;
+        }
+        let actionButtons = '';
+        // Reset password
+        actionButtons += `<button class="btn btn-sm btn-outline-warning" onclick="${canReset ? `openChangePasswordModal(${u.id}, '${u.name}', '${u.email}', '${u.role}')` : ''}" style="${canReset ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-key"></i></button>`;
+        // Edit
+        actionButtons += `<button class="btn btn-sm btn-outline-primary me-1" onclick="${canEdit ? `openEditUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}', '${u.location || ''}')` : ''}" style="${canEdit ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-edit"></i></button>`;
+        // Delete
+        actionButtons += `<button class="btn btn-sm btn-outline-danger" onclick="${canDelete ? `openDeleteUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.role}')` : ''}" style="${canDelete ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-trash"></i></button>`;
+        // Transfer
+        actionButtons += `<button class="btn btn-sm btn-outline-info" onclick="${canTransfer ? `openTransferUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}')` : ''}" style="${canTransfer ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-paper-plane"></i></button>`;
         tr.innerHTML =
           '<td>' + (i + 1) + '</td>' +
           '<td>' + u.name + '</td>' +
           '<td>' + u.email + '</td>' +
           '<td>' + u.role.replace('_', ' ') + '</td>' +
           '<td>' + (u.location ? u.location.replace(/'/g, "&#39;") : '') + '</td>' +
-          '<td>' +
-            '<button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal(' + u.id + ', \'' + u.name.replace(/'/g, "&#39;") + '\', \'' + u.email + '\', \'' + u.role + '\', \'' + (u.location || '') + '\')"' + (u.role === 'SUPER_ADMIN' ? ' disabled' : '') + '><i class="fa fa-edit"></i></button>' +
-            '<button class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal(' + u.id + ', \'' + u.name.replace(/'/g, "&#39;") + '\', \'' + u.role + '\')"' + (u.role === 'SUPER_ADMIN' ? ' disabled' : '') + '><i class="fa fa-trash"></i></button>' +
-            '<button class="btn btn-sm btn-outline-info" onclick="openTransferUserModal(' + u.id + ', \'' + u.name.replace(/'/g, "&#39;") + '\', \'' + u.email + '\', \'' + u.role + '\')"' + (u.role === 'SUPER_ADMIN' ? ' disabled' : '') + '><i class="fa fa-paper-plane"></i></button>' +
-            changePasswordBtn +
-          '</td>';
+          '<td>' + actionButtons + '</td>';
         tbody.appendChild(tr);
       });
     }
