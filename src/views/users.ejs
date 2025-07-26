@@ -226,6 +226,24 @@
       </div>
     </div>
   </div>
+  <!-- Admin Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteAdminConfirmModal" tabindex="-1" aria-labelledby="deleteAdminConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteAdminConfirmModalLabel">Delete Admin</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete admin <span id="deleteAdminConfirmName" class="fw-bold"></span>? This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteAdminBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script>
     // EJS will inject the user object here. Ignore linter warning if seen in editor.
     // eslint-disable-next-line
@@ -244,7 +262,8 @@
         const tr = document.createElement('tr');
         let canEdit = false, canDelete = false, canTransfer = false, canReset = false;
         if (user.role === 'SUPER_ADMIN' && u.role !== 'SUPER_ADMIN') {
-          canEdit = canDelete = canTransfer = canReset = true;
+          canEdit = canDelete = canReset = true;
+          if (u.role === 'User') canTransfer = true;
         }
         if (user.role === 'Admin' && u.role === 'User') {
           canEdit = canDelete = canTransfer = canReset = true;
@@ -256,8 +275,10 @@
         actionButtons += `<button class="btn btn-sm btn-outline-primary me-1" onclick="${canEdit ? `openEditUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}', '${u.location || ''}')` : ''}" style="${canEdit ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-edit"></i></button>`;
         // Delete
         actionButtons += `<button class="btn btn-sm btn-outline-danger" onclick="${canDelete ? `openDeleteUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.role}')` : ''}" style="${canDelete ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-trash"></i></button>`;
-        // Transfer
-        actionButtons += `<button class="btn btn-sm btn-outline-info" onclick="${canTransfer ? `openTransferUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}')` : ''}" style="${canTransfer ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-paper-plane"></i></button>`;
+        // Transfer (only for 'User' role)
+        if (u.role === 'User') {
+          actionButtons += `<button class="btn btn-sm btn-outline-info" onclick="${canTransfer ? `openTransferUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}')` : ''}" style="${canTransfer ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-paper-plane"></i></button>`;
+        }
         tr.innerHTML =
           '<td>' + (i + 1) + '</td>' +
           '<td>' + u.name + '</td>' +
@@ -305,19 +326,26 @@
       if (role === 'SUPER_ADMIN') return;
       deleteUserId = id;
       deleteUserRole = role;
-      document.getElementById('deleteUserModalBody').querySelector('form').reset();
-      document.getElementById('deleteUserModalBody').querySelector('form').style.display = 'block';
-      // Fetch roles for dropdown
-      fetch('/admin/roles').then(r => r.json()).then(roles => {
-        const dropdown = document.getElementById('replaceUserRoleId');
-        dropdown.innerHTML = '<option value="">Select Role</option>';
-        roles.forEach(role => {
-          if (role.name !== 'SUPER_ADMIN') {
-            dropdown.innerHTML += `<option value="${role.id}">${role.name}</option>`;
-          }
+      if (role === 'Admin') {
+        // Show simple confirmation modal for admin
+        document.getElementById('deleteAdminConfirmName').textContent = name;
+        new bootstrap.Modal(document.getElementById('deleteAdminConfirmModal')).show();
+      } else {
+        // Show replace form for user
+        document.getElementById('deleteUserModalBody').querySelector('form').reset();
+        document.getElementById('deleteUserModalBody').querySelector('form').style.display = 'block';
+        // Fetch roles for dropdown
+        fetch('/admin/roles').then(r => r.json()).then(roles => {
+          const dropdown = document.getElementById('replaceUserRoleId');
+          dropdown.innerHTML = '<option value="">Select Role</option>';
+          roles.forEach(role => {
+            if (role.name !== 'SUPER_ADMIN') {
+              dropdown.innerHTML += `<option value="${role.id}">${role.name}</option>`;
+            }
+          });
         });
-      });
-      new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
+        new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
+      }
     }
     document.getElementById('confirmReplaceUserBtn').onclick = async function() {
       if (!deleteUserId) return;
@@ -466,6 +494,32 @@
       } finally {
         btn.disabled = false;
         btn.textContent = 'Change Password';
+      }
+    };
+
+    document.getElementById('confirmDeleteAdminBtn').onclick = async function() {
+      if (!deleteUserId) return;
+      const btn = this;
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/admin/users/${deleteUserId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        bootstrap.Modal.getInstance(document.getElementById('deleteAdminConfirmModal')).hide();
+        if (res.ok) {
+          showToast('Admin deleted successfully!');
+          fetchUsers();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to delete admin');
+        }
+      } catch (err) {
+        showToast('Network error');
+      } finally {
+        btn.disabled = false;
+        deleteUserId = null;
+        deleteUserRole = null;
       }
     };
   </script>
