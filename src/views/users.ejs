@@ -120,18 +120,11 @@
           </div>
           <div class="modal-body">
             <input type="hidden" name="id" id="editUserId">
-            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="editUserName" id="editUserName" readonly></div>
-            <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="editUserEmail" id="editUserEmail" readonly></div>
-            <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="editUserLocation" id="editUserLocation" readonly></div>
+            <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="editUserName" id="editUserName"></div>
+            <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="editUserEmail" id="editUserEmail"></div>
+            <div class="mb-3"><label class="form-label">Location</label><input type="text" class="form-control" name="editUserLocation" id="editUserLocation"></div>
             <div class="mb-3"><label class="form-label">Role</label>
               <input type="text" class="form-control" id="editUserRole" readonly>
-              <% if (user.role === 'SUPER_ADMIN' || user.role === 'Admin') { %>
-              <label class="form-label mt-2">Change Role</label>
-              <select class="form-select" id="editUserRoleDropdown">
-                <option value="User">User</option>
-                <option value="Admin">Admin</option>
-              </select>
-              <% } %>
             </div>
           </div>
           <div class="modal-footer">
@@ -370,8 +363,6 @@
       document.getElementById('editUserEmail').value = email;
       document.getElementById('editUserLocation').value = location || '';
       document.getElementById('editUserRole').value = role;
-      var dropdown = document.getElementById('editUserRoleDropdown');
-      if (dropdown) dropdown.value = role;
       new bootstrap.Modal(document.getElementById('editUserModal')).show();
     }
     document.getElementById('editUserForm').onsubmit = async function(e) {
@@ -381,8 +372,6 @@
       const email = document.getElementById('editUserEmail').value;
       const location = document.getElementById('editUserLocation').value;
       let role = document.getElementById('editUserRole').value;
-      var dropdown = document.getElementById('editUserRoleDropdown');
-      if (dropdown) role = dropdown.value;
       const res = await fetch(`/admin/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
