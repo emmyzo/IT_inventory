@@ -156,11 +156,6 @@
             <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" name="name" id="replaceUserName" required></div>
             <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" name="email" id="replaceUserEmail" required pattern="^[^@\s]+@olam-agri\.com$" title="Email must end with @olam-agri.com"></div>
             <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" id="replaceUserPassword" required></div>
-            <div class="mb-3"><label class="form-label">Role</label>
-              <select class="form-select" name="roleId" id="replaceUserRoleId" required>
-                <option value="">Select Role</option>
-              </select>
-            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -334,16 +329,6 @@
         // Show replace form for user
         document.getElementById('deleteUserModalBody').querySelector('form').reset();
         document.getElementById('deleteUserModalBody').querySelector('form').style.display = 'block';
-        // Fetch roles for dropdown
-        fetch('/admin/roles').then(r => r.json()).then(roles => {
-          const dropdown = document.getElementById('replaceUserRoleId');
-          dropdown.innerHTML = '<option value="">Select Role</option>';
-          roles.forEach(role => {
-            if (role.name !== 'SUPER_ADMIN') {
-              dropdown.innerHTML += `<option value="${role.id}">${role.name}</option>`;
-            }
-          });
-        });
         new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
       }
     }
@@ -355,8 +340,7 @@
         oldUserId: deleteUserId,
         name: form.name.value,
         email: form.email.value,
-        password: form.password.value,
-        roleId: form.roleId.value
+        password: form.password.value
       };
       document.getElementById('confirmReplaceUserBtn').disabled = true;
       const res = await fetch('/admin/users/replace', {
