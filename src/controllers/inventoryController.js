@@ -213,12 +213,20 @@ exports.deleteInventory = async (req, res) => {
       item.userEmail === req.user.email ||
       (item.multipleUsers && JSON.stringify(item.multipleUsers).includes(req.user.email))
     ) {
-      let updateData = { status: 'deleted' };
-      if (req.body && req.body.description) {
-        updateData.description = req.body.description;
+      // Check if this is a permanent delete (from deleted items page)
+      if (item.status === 'deleted') {
+        // Permanent deletion - actually remove from database
+        await item.destroy();
+        return res.json({ success: true, permanentlyDeleted: true });
+      } else {
+        // Soft delete - just change status to deleted
+        let updateData = { status: 'deleted' };
+        if (req.body && req.body.description) {
+          updateData.description = req.body.description;
+        }
+        await item.update(updateData);
+        return res.json({ success: true, deleted: true });
       }
-      await item.update(updateData);
-      return res.json({ success: true, deleted: true });
     }
     return res.status(403).json({ error: 'Forbidden' });
   } catch (err) {

@@ -122,11 +122,40 @@
           <td>
             <button class='btn btn-sm btn-success' onclick='restoreInventoryRow(${item.id})' title='Restore'><i class="fa fa-undo"></i></button>
             <button class='btn btn-sm' style='background: #800080; color: #fff;' title='Move to Scrap' onclick='openMoveDeletedToScrapModal(${JSON.stringify(item)})'><i class="fa fa-recycle"></i></button>
+            <button class='btn btn-sm btn-danger' onclick='permanentlyDeleteItem(${item.id})' title='Permanently Delete'><i class="fa fa-trash"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
+    
+    window.permanentlyDeleteItem = async function(id) {
+      // User-friendly confirmation dialog
+      const confirmed = confirm('⚠️ WARNING: This action cannot be undone!\n\nAre you sure you want to PERMANENTLY DELETE this item from the inventory?\n\nThis will completely remove the item and all its data.');
+      
+      if (!confirmed) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`/api/inventory/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin'
+        });
+        
+        if (res.ok) {
+          fetchDeletedInventoryRows();
+          alert('✅ Item permanently deleted successfully!');
+        } else {
+          const err = await res.json();
+          alert('❌ Error: ' + (err.error || 'Failed to delete item'));
+        }
+      } catch (err) {
+        alert('❌ Network error occurred');
+      }
+    };
+    
     fetchDeletedInventoryRows();
     window.restoreInventoryRow = async function(id) {
       if (!confirm('Are you sure you want to restore this item to active inventory?')) {
