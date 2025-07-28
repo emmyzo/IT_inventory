@@ -269,7 +269,7 @@
         actionButtons += `<button class="btn btn-sm btn-outline-danger" onclick="${canDelete ? `openDeleteUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.role}')` : ''}" style="${canDelete ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-trash"></i></button>`;
         // Transfer (only for 'User' role)
         if (u.role === 'User') {
-          actionButtons += `<button class="btn btn-sm btn-outline-info" onclick="${canTransfer ? `openTransferUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}')` : ''}" style="${canTransfer ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-paper-plane"></i></button>`;
+        actionButtons += `<button class="btn btn-sm btn-outline-info" onclick="${canTransfer ? `openTransferUserModal(${u.id}, '${u.name.replace(/'/g, "&#39;")}', '${u.email}', '${u.role}')` : ''}" style="${canTransfer ? '' : 'pointer-events: none; opacity: 0.5;'}"><i class="fa fa-paper-plane"></i></button>`;
         }
         tr.innerHTML =
           '<td>' + (i + 1) + '</td>' +
@@ -324,8 +324,8 @@
         new bootstrap.Modal(document.getElementById('deleteAdminConfirmModal')).show();
       } else {
         // Show replace form for user
-        document.getElementById('deleteUserModalBody').querySelector('form').reset();
-        document.getElementById('deleteUserModalBody').querySelector('form').style.display = 'block';
+      document.getElementById('deleteUserModalBody').querySelector('form').reset();
+      document.getElementById('deleteUserModalBody').querySelector('form').style.display = 'block';
         new bootstrap.Modal(document.getElementById('deleteUserModal')).show();
       }
     }
