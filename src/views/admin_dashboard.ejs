@@ -223,6 +223,11 @@
         <div class="card-title">Printers</div>
         <div class="card-value" id="cardPrinters">0</div>
       </div>
+      <div class="dashboard-card">
+        <div class="card-icon"><i class="fa fa-trash"></i></div>
+        <div class="card-title">Deleted Items</div>
+        <div class="card-value" id="cardDeletedItems">0</div>
+      </div>
     </div>
     <div class="table-section">
       <div class="section-title">Recent Users</div>
@@ -274,6 +279,8 @@
       document.getElementById('cardDesktops').textContent = items.filter(i => norm(i.deviceType) === 'desktop').length;
       document.getElementById('cardMonitors').textContent = items.filter(i => norm(i.deviceType) === 'monitor').length;
       document.getElementById('cardPrinters').textContent = items.filter(i => norm(i.deviceType) === 'printer').length;
+      // Deleted items card
+      document.getElementById('cardDeletedItems').textContent = items.filter(i => i.status === 'deleted').length;
     }
     fetchDashboardStats();
 
