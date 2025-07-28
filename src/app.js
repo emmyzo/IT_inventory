@@ -26,11 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // MySQL session store options
 const sessionStoreOptions = {
-  host: 'localhost',
-  port: 3306,
+  host: 'yamanote.proxy.rlwy.net',
+  port: 11990,
   user: 'root',
-  password: 'Emmyzo@24!',
-  database: 'it_inventory',
+  password: 'nUSbBqjjtaKVPQpJDjNKsgRreqqmpARk',
+  database: 'railway',
 };
 const sessionStore = new MySQLStore(sessionStoreOptions);
 
