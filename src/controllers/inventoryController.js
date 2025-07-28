@@ -47,6 +47,16 @@ exports.getInventoryById = async (req, res) => {
 exports.createInventory = async (req, res) => {
   try {
     let data = { ...req.body };
+    
+    // Add detailed logging
+    console.log('=== CREATE INVENTORY DEBUG ===');
+    console.log('Raw request body:', JSON.stringify(req.body, null, 2));
+    console.log('Processed data:', JSON.stringify(data, null, 2));
+    console.log('Windows value:', data.windows);
+    console.log('Device type value:', data.deviceType);
+    console.log('User type value:', data.userType);
+    console.log('=============================');
+    
     // Backend validation for emailId
     if (data.emailId && !/^.+@olam-agri\.com$/.test(data.emailId.trim())) {
       return res.status(400).json({ error: 'Email ID must end with @olam-agri.com' });
@@ -72,9 +82,14 @@ exports.createInventory = async (req, res) => {
         data.purchaseDate = null;
       }
     }
+    
+    console.log('Final data before create:', JSON.stringify(data, null, 2));
+    
     const item = await InventoryItem.create(data);
     res.status(201).json(item);
   } catch (err) {
+    console.log('CREATE ERROR:', err.message);
+    console.log('CREATE ERROR STACK:', err.stack);
     res.status(400).json({ error: err.message });
   }
 };
@@ -93,6 +108,16 @@ exports.updateInventory = async (req, res) => {
       (item.multipleUsers && JSON.stringify(item.multipleUsers).includes(req.user.email))
     ) {
       let data = { ...req.body };
+      
+      // Add detailed logging
+      console.log('=== UPDATE INVENTORY DEBUG ===');
+      console.log('Raw request body:', JSON.stringify(req.body, null, 2));
+      console.log('Processed data:', JSON.stringify(data, null, 2));
+      console.log('Windows value:', data.windows);
+      console.log('Device type value:', data.deviceType);
+      console.log('User type value:', data.userType);
+      console.log('=============================');
+      
       // Detailed logging
       const debugEntry = {
         timestamp: new Date().toISOString(),
@@ -116,6 +141,8 @@ exports.updateInventory = async (req, res) => {
         await item.update(data);
         debugEntry.result = item.toJSON();
       } catch (err) {
+        console.log('UPDATE ERROR:', err.message);
+        console.log('UPDATE ERROR STACK:', err.stack);
         debugEntry.error = err.message;
       }
       updateDebugLog.push(debugEntry);
